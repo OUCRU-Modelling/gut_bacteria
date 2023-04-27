@@ -101,6 +101,8 @@ plot(out[, 1], out[, 2], type = "l", col = 4, ylim = 0:1)
 ###
 
 out <- map2(v, phi0, phi_values)
+plot(v, map_dbl(out, function(x) x[1, 2]))
+abline(h = 0:1)
 
 plot(1, 1, xlim = c(0, 6), ylim = 0:1, type = "l",
      xlab = "position of the gut (cm)", ylab = "food concentration (mM)")
