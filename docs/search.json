@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "Labavic.html",
+    "href": "Labavic.html",
+    "title": "Labavic et al model",
+    "section": "",
+    "text": "library(purrr)\nlibrary(dplyr)"
+  },
+  {
+    "objectID": "Labavic.html#figure-1s",
+    "href": "Labavic.html#figure-1s",
+    "title": "Labavic et al model",
+    "section": "Figure 1S",
+    "text": "Figure 1S\nThe variables of the model:\n\n\n\nvariable\nunit\ndescription\n\n\n\n\n\\(F\\)\nmM\nfood concentration\n\n\n\nThe parameters of the model:\n\n\n\n\n\n\n\n\n\nparameter\nunit\ndescription\nR variable\n\n\n\n\n\\(L\\)\ncm\nlength of the gut\nL\n\n\n\\(x\\)\ncm\nlocation along the gut from its entrance\nx\n\n\n\\(F_\\mbox{in}\\)\nmM\nfood inflow at the entrance of the gut\nFin\n\n\n\\(k\\)\nmM\nMonod constant\nk\n\n\n\\(r\\)\n/h\nmaximum growth rate\nr\n\n\n\\(v\\)\ncm/h\nflow velocity\nv\n\n\n\\(D\\)\ncm\\(^2\\)/h\ndiffusion coefficient\nD\n\n\n\nChanges of variables:\n\\[\ns = \\frac{v}{D}x\n\\] and\n\\[\n\\phi(s) = \\frac{F(s)}{F_\\mbox{in}}\n\\] which leads to this ODE:\n\\[\n0 = \\frac{\\partial^2 \\phi}{\\partial s^2} - \\frac{\\partial \\phi}{\\partial s} - \\lambda\\frac{\\phi(1 - \\phi)}{\\kappa + \\phi}\n\\] where\n\\[\n\\kappa = \\frac{k}{F_\\mbox{in}}\n\\]\nand\n\\[\n\\lambda = \\frac{rD}{v}\n\\]\nAnd the boundary conditions become:\n\\[\n\\frac{\\partial\\phi}{\\partial s}(s = 0) = \\phi(s = 0) - 1\n\\]\nand\n\\[\n\\frac{\\partial\\phi}{\\partial s}(s = \\sigma) = 0\n\\]\nwhere\n\\[\n\\sigma = \\frac{v}{D}L\n\\]\nThe function that calculates the \\(\\phi\\) values:\n\nphi_values <- function(v, Fin, k, r, D, L, phi0, N = 500) {\n# phi0: guess on the value of phi\n# N   : number of integration points on the x axis\n  \n# changes of variables:\n  kappa <- k / Fin\n  lambda <- r * D / v^2\n  sigma <- L * v / D\n\n# ODEs:\n  func <- function(s, Y, pars){\n    with (as.list(Y), {\n      dphi <- f\n      df   <- f + (lambda * phi * (1 - phi)) / (kappa + phi)\n      return(list(c(dphi, df)))\n    })\n  }\n  \n# boundary conditions:\n  bound <- function(j, Y, pars) {\n    with (as.list(Y), {\n      if (j == 1) return (phi - f - 1)\n      if (j == 2) return (f)\n    })\n  }\n  \n# guess values:\n  sguess <- c(0, sigma)\n  yguess <- matrix(c(phi0, phi0 - 1, phi0, phi0 - 1), 2,\n                   dimnames = list(c(\"phi\", \"f\")))\n\n# numerical solutions:\n  out <- bvpSolve::bvpcol(x = seq(0, sigma, le = N), func = func, bound = bound,\n                          xguess = sguess, yguess = yguess, leftbc = 1)[, 1:2]\n\n# rearranging and returning the output:\n  out[, 1] <- out[, 1] * D / v\n  tibble::as_tibble(out)\n}\n\nA tweaked version of phi_values() in which \\(F_\\mbox{in} = 1 / v\\):\n\nphi_values2 <- function(v, k, r, D, L, phi0, N)\n  phi_values(v, 1 / v, k, r, D, L, phi0, N)\n\nA color generator:\n\ncolor_generator <- colorRampPalette(rev(RColorBrewer::brewer.pal(11, \"Spectral\")))\n\nLet’s try it:\n\nv_val <- seq(.001, .6, le = 10)\n\nout <- map(v_val, phi_values2, k = .1, r = .42, D = .2, L = 6, phi0 = 0, N = 500)\n\nplot(1, 1, xlim = c(0, 6), ylim = 0:1, type = \"l\",\n     xlab = \"position on the gut (cm)\", ylab = \"food concentration (mM)\")\n\nwalk2(out, color_generator(length(v_val)),\n      function(y, z) with(y, lines(x, phi, col = z, lwd = 3)))"
+  }
+]
