@@ -1,3 +1,5 @@
+library(bvpSolve)
+library(phaseR)
 L <- 6
 v <- 0.536
 k <- 0.054
