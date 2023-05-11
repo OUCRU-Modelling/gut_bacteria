@@ -1,9 +1,10 @@
 L <- 6
-v <- 0.5
-k <- 0.1/(1/v)
+v <- 0.536
+k <- 0.054
 D <- 0.2 # Assigning the parameters values
 r <- 0.42
 lamb <- (r*D)/(v^2)
+#lamb <- 0.290
 xic <- (L*v)/D
 alpha <- 6.13*(10^8)
 phi0 <- 0 #  our object Numerical solution is phi
@@ -55,23 +56,30 @@ Func <- function(t, y, parameters) {
   list(dy)
 }
 
+###Jacobian matrix at equilibrium points
+A=matrix(c(0,lamb/k,1,1),ncol=2,nrow=2)
+eigen((A)) #extract eigen information
+v1=eigen((A))$values[1]
+v2=eigen((A))$values[2]
+
 ## Our eigenvectors directions
-x1 <- c(-0.2,-0.147188,0,1) 
-y1 <- 1.39509*x1
-y2 <- -0.95080465*x1
+x1 <- c(-0.1,-0.05,0,0.1) #generated x corrdinate
+y1 <- v1*x1     #the slopes is eigenvalues
+y2 <- v2*x1
 
 ### Solution vector field & adding other elements
-Func.flowField <- flowField(Func, xlim = c(-0.3, 1.3), ylim = c(-0.25, 0.2), points = 17,xlab = "Phi",ylab="Chi", add = FALSE)
+Func.flowField <- flowField(Func, xlim = c(-0.05, 1.3), ylim = c(-0.15, 0.2), points = 17,xlab = "Phi",ylab="Chi", add = FALSE)
 
-lines(Sol[,2], Sol[,3], type='l',lwd=2,col='blue') ## Solution (blue curve)
+lines(Sol[,2], Sol[,3], type='l',lwd=2,col='yellow3') ## Solution (blue curve)
 
 lines(x=seq(-0.47,1.5,len=70),y=seq(0,0,len=70),col='black') ## two vertical and horizental axis passing two singularity points
-lines(x=seq(0,0,len=70),y=seq(-0.3,0.3,len=70),col='black')
+lines(x=seq(0,0,len=70),y=seq(-01.3,0.7,len=70),col='black')
 
 lines(x1,y1,pch=20,lty='dashed',col='black',lwd=2) ## two eigenvecotrs direction
 lines(x1,y2,pch=20,lty='dashed',col='red',lwd=2)
-
-lines(x=c(1.2,1,0.8),y=c(0.2,0,-0.2),col='black',lwd=2) ## boundary line
+x=c(1.2,1,0.8,0.5,0.2,0.-0.1)
+y=x-1
+lines(x,y,lwd=2) ## boundary line
 
 points(0,0,lwd=4,pch = 20) ##two sigularity points
 points(1,0,lwd=4,pch = 20)
