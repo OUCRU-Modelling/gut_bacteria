@@ -1,8 +1,7 @@
 library(bvpSolve)
 library(phaseR)
-L <- c(3.2,3.4,4,6)
-Chi=list()
-v <- 0.5
+L <- 6
+v <- 0.536
 k <- 0.054
 D <- 0.2 # Assigning the parameters values
 r <- 0.42
