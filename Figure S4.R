@@ -1,7 +1,7 @@
 library(bvpSolve)
 library(phaseR)
 
-N <- 50
+N <- 500
 v <- 0.5
 k <- 0.051
 D <- 0.2 # Assigning the parameters values
