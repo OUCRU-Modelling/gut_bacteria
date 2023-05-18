@@ -86,8 +86,8 @@ Sol_system <- function(t, Y, parms) {
      B     <- Y[(N+1):(2*N)]
      M     <- Y[((2*N)+1):(3*N)]
      dFood <- -(r/alpha)*(B+M)*Food/(k+Food) + tran.1D(C = Food, D = D, flux.up = v*F_in, flux.down = NULL, v=v, dx = xgrid)$dC
-     dB    <- r*(B*Food)/(k+Food)            + tran.1D(C = B, D = D, flux.up = 0, flux.down = NULL, v=v, dx = xgrid)$dC   ###tran1D to describe divection diffusion equation
-     dM    <- r*(M*Food)/(k+Food)            + tran.1D(C = M, D = D, flux.up = 0, flux.down = NULL, v=v, dx = xgrid)$dC
+     dB    <- r*(B*Food)/(k+Food)            + tran.1D(C = B   , D = D, flux.up = 0     , flux.down = NULL, v=v, dx = xgrid)$dC   ###tran1D to describe divection diffusion equation
+     dM    <- r*(M*Food)/(k+Food)            + tran.1D(C = M   , D = D, flux.up = 0     , flux.down = NULL, v=v, dx = xgrid)$dC
     
     return(list(c(dFood, dB, dM)))
 }
@@ -104,7 +104,7 @@ a3     <- xm*rep(1,length(times)) +  v*times
 
 par(mfrow = c(2,2))
 par(mar = c(3.7,3.7,4,4)+0.4)
-image(out,legend=TRUE, xlab="times", ylab="position", grid = xgrid$x.mid,which = "B")
+image(out,legend=TRUE, xlab="times", ylab="position", grid = xgrid$x.mid, which = "B")
 lines(times, a1, col="white")
 lines(times, a2, col="white")
 lines(times, a3, col="black")
