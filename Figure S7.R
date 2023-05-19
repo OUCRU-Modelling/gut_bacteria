@@ -2,14 +2,15 @@ library(bvpSolve)
 library(ReacTran)
 library(deSolve)
 L     <- 6
-N     <- 230
+N     <- 211
 v     <- 0.5
 k     <- 0.1
 F_in  <- 1/v
 kappa <- 0.1/(1/v)  # Note that we only use kappa to solve the initial condition for the with mutant system 
 D     <- 0.4        # Assigning the parameters values
 r     <- 0.42
-lamb  <- (r*D)/(v^2) 
+lamb  <- (r*D)/(v^2)
+xic   <- (L*v)/D
 alpha <- 6.13*(10^8)
 
 ## Solve for initial condition (i.e the stationary state without mutant, F_star and B_star)
@@ -19,7 +20,7 @@ phi0  <- 0    # our object Numerical solution is phi
               # v is phi's 1st derivative
 
 s     <- seq(0,xic,length.out = N) # independent variable
-func <- function(s, Y, pars){
+func  <- function(s, Y, pars){
   with (as.list(Y), {
     dphi=v
     dv=v+(lamb*phi*(1-phi))/(kappa+phi) ## our ODEs system
@@ -39,8 +40,8 @@ rownames(yguess) <- c("phi", "v")
 Sol <-  bvpcol(x = s, func = func, bound = bound,
                xguess = sguess, yguess = yguess,    # Solving non-mutant system
                leftbc = 1)
-Sol[,2] <- Sol[,2]
-Sol[,1] <- Sol[,1]*D/v
+#Sol[,2] <- Sol[,2]
+#Sol[,1] <- Sol[,1]*D/v
 
 #### Solve the system with mutant first appear at xm
 
@@ -48,16 +49,17 @@ vec_F_in  <- rep(1,N)*F_in                ### because
 Food_star <- Sol[,2]*F_in                 ### The initial condition of PDE system, is in Food whereas in without mutant, the solution is F/F_in
 B_star    <- alpha*(vec_F_in - Food_star) ### The equation of B_star and F_star in no mutant system (my previous reports)
 xm        <- 3                            ### the first location mutant appear
-M0        <- 3.33*10^-11                  ### mutant concentration at this location (xm), initial concentration of Mutant
+M0        <- 3.33*10^(-11)                ### mutant concentration at this location (xm), initial concentration of Mutant
 times     <- seq(0, 1,len=100)            ### discretization of times
 xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ## generating the gird for our solution
-x         <- xgrid$x.int                              ### Our discretization points
+x         <- xgrid$x.int                  ### Our discretization points
 F_ini     <- Food_star
-B_ini     <- B_star                                      ### Our initial condition of the system (at t = 0)
+B_ini     <- B_star                       ### Our initial condition of the system (at t = 0)
 M_ini     <- rep(1,N)
+dx        <- L/N
 Mini      <- function (x){
         a <- abs(x-xm)
-        if (a<=(0.01/2)){
+        if (a<=(dx/2)){
           return(M0)
         }                                 ### Initial condition for Mutant
         else{
@@ -91,7 +93,8 @@ a3     <- xm*rep(1,length(times)) +  v*times
 ### Visualization
 par(mfrow = c(2,2))
 par(mar = c(3.7,3.7,4,4)+0.4)
-image(out,legend=TRUE, xlab="times", ylab="position", grid = xgrid$x.mid, which = "M") ### drawing heatmap
+image(out, which = "M", legend = TRUE, xlab="times", ylab="position", grid = x) ### drawing heatmap
+matplot.1D(out, which = "B", xlim = c(0,6), grid = xgrid$x.mid , xlab="xx", ylab='Food', type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
 lines(times, a1, col="white")
 lines(times, a2, col="white")
 lines(times, a3, col="black")
