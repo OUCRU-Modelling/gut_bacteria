@@ -2,7 +2,7 @@ library(bvpSolve)
 library(ReacTran)
 library(deSolve)
 L     <- 6
-N     <- 211
+N     <- 230
 v     <- 0.5
 k     <- 0.1
 F_in  <- 1/v
@@ -51,7 +51,7 @@ xm        <- 3                            ### the first location mutant appear
 M0        <- 3.33*10^-11                  ### mutant concentration at this location (xm), initial concentration of Mutant
 times     <- seq(0, 1,len=100)            ### discretization of times
 xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ## generating the gird for our solution
-x         <- seq(0,6,len=N)                              ### Our discretization points
+x         <- xgrid$x.int                              ### Our discretization points
 F_ini     <- Food_star
 B_ini     <- B_star                                      ### Our initial condition of the system (at t = 0)
 M_ini     <- rep(1,N)
@@ -91,7 +91,7 @@ a3     <- xm*rep(1,length(times)) +  v*times
 ### Visualization
 par(mfrow = c(2,2))
 par(mar = c(3.7,3.7,4,4)+0.4)
-image(out,legend=TRUE, xlab="times", ylab="position", grid = xgrid$x.mid, which = "B") ### drawing heatmap
+image(out,legend=TRUE, xlab="times", ylab="position", grid = xgrid$x.mid, which = "M") ### drawing heatmap
 lines(times, a1, col="white")
 lines(times, a2, col="white")
 lines(times, a3, col="black")
