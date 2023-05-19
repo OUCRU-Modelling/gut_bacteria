@@ -40,8 +40,6 @@ rownames(yguess) <- c("phi", "v")
 Sol <-  bvpcol(x = s, func = func, bound = bound,
                xguess = sguess, yguess = yguess,    # Solving non-mutant system
                leftbc = 1)
-#Sol[,2] <- Sol[,2]
-#Sol[,1] <- Sol[,1]*D/v
 
 #### Solve the system with mutant first appear at xm
 
@@ -94,7 +92,7 @@ a3     <- xm*rep(1,length(times)) +  v*times
 par(mfrow = c(2,2))
 par(mar = c(3.7,3.7,4,4)+0.4)
 image(out, which = "M", legend = TRUE, xlab="times", ylab="position", grid = x) ### drawing heatmap
-matplot.1D(out, which = "B", xlim = c(0,6), grid = xgrid$x.mid , xlab="xx", ylab='Food', type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
+matplot.1D(out, which = "B", xlim = c(0,6), grid = xgrid$x.mid , xlab="x", ylab='Food', type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
 lines(times, a1, col="white")
 lines(times, a2, col="white")
 lines(times, a3, col="black")
