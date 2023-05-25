@@ -100,13 +100,13 @@ Rxm[i]        <- R[index_xm]*10^-8
 M_on_B[i]     <- (10^19)*Mutant[length(times),N-1]/Bacte[length(times),N-1]
 i             <- i + 1 
 }
-par(mar = c(6, 5, 5, 7) + 0.05 ) 
+par(mar = c(4, 5, 4, 5) + 0.05 ) 
 plot(xm, M_on_B, ylab = 'Ratio of M/B (x10^-19)' 
     , xlab = 'mutant introduction position xm (cm)',
      type = 'l', col = 'black',lwd =2)
 par(new = TRUE) 
-plot(xm, Rxm, ylab = "", xlab = "", axes=FALSE,
-     type = 'l', col = 'pink',lwd =2) 
-axis(side = 4, at = pretty(range(ro)),col="pink", line = 4)
-mtext("reproduction rate in 
-     unit volume and time R", side = 4, line = 6,col="pink")
+plot(xm, Rxm, ylab = "", xlab = "", axes = FALSE,
+     type = 'l',ylim = c(0, 3.8),las = 1, col = 'pink',lwd =2) 
+axis(side = 4, at = pretty(range(Rxm)),col='pink')
+mtext("Reproduction rate in 
+     unit volume and time R", side = 4, line = 2.9,col="pink")
