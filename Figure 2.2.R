@@ -21,34 +21,7 @@ x         <- xgrid$x.int                                 ### Our discretization 
 F_ini     <- vec_F_in*0.9
 B_ini     <- 0.1*alpha*vec_F_in
 
-#Solve for initial condition (i.e the stationary state without mutant, F_star and B_star)
-# ## Basically, I replicate everything I did to dredata:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAYAAABWzo5XAAAAWElEQVR42mNgGPTAxsZmJsVqQApgmGw1yApwKcQiT7phRBuCzzCSDSHGMKINIeDNmWQlA2IigKJwIssQkHdINgxfmBBtGDEBS3KCxBc7pMQgMYE5c/AXPwAwSX4lV3pTWwAAAABJRU5ErkJggg==w the Figure S1 in Appendix.
 
-# phi0  <- 0    # our object Numerical solution is phi
-# # phi0 is initial guess
-# # v is phi's 1st derivative
-# 
-# s     <- seq(0,xic,length.out = N) # independent variable
-# func  <- function(s, Y, pars){
-#   with (as.list(Y), {
-#     dphi=v
-#     dv=v+(lamb*phi*(1-phi))/(kappa+phi) ## our ODEs system
-#     return(list(c(dphi, dv)))
-#   })
-# }
-# bound <- function(i, Y, pars) {
-#   with (as.list(Y), {
-#     if(i==1) return (phi-v-1) # boundary conditions
-#     if(i==2) return (v)
-#   })
-# }
-# sguess <-  seq(0, xic, length.out = N)
-# yguess <- matrix(ncol = N,
-#                  data = (rep(c(phi0,phi0-1), N)))
-# rownames(yguess) <- c("phi", "v")
-# Sol <-  bvpcol(x = s, func = func, bound = bound,
-#                xguess = sguess, yguess = yguess,    # Solving non-mutant system
-#                leftbc = 1)
 func <- function(t, Y, parms) {
   Food  <- Y[1:N]
   B     <- Y[(N+1):(2*N)]
@@ -64,28 +37,27 @@ print(system.time(
 
 
 #### Solve the system with mutant first appear at xm
-tmax      <- 2000
-vec_F_in  <- rep(1,N)*F_in                ### because 
+tmax      <- 1000
 Food_star <- out[100,2:(N+1)]                 ### The initial condition of PDE system, is in Food whereas in without mutant, the solution is F/F_in
-B_star    <- out[100,(N+2):(2*N+1)] ### The equation of B_star and F_star in no mutant system (my previous reports)
+B_star    <- out[100,(N+2):(2*N+1)]           ### The equation of B_star and F_star in no mutant system
 xm        <- seq(0,6,by=0.05)
-times     <- seq(0, tmax,len=200)            ### discretization of times
-xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ## generating the gird for our solution
-x         <- xgrid$x.mid                  ### Our discretization points
+times     <- seq(0, tmax,len=200)             ### discretization of times
+xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ## generating the grid for our solution
+x         <- xgrid$x.mid                      ### Our discretization points
 F_ini     <- Food_star 
-B_ini     <- B_star                       ### Our initial condition of the system (at t = 0)
+B_ini     <- B_star                           ### Our initial condition of the system (at t = 0)
 M_ini     <- rep(1,N)
 dx        <- L/(N-1)
 M0        <- (3.33*10^(-11))/dx
 M_on_B    <- rep(1,length(xm))
 RM_on_B   <- rep(1,length(xm))
 i         <- 1
-if(reinitialise_mutant <- TRUE){         ### When you turn it into TRUE, Rstudio will run the code in the bracket
+if(reinitialise_mutant <- TRUE){              ### When you turn it into TRUE, Rstudio will run the code in the bracket
   Mini      <- function (x,x0){
     a <- abs(x-x0)
     if (a<=(dx/2)){
       return(M0)
-    }                                 ### Initial condition for Mutant
+    }                                        ### Initial condition for Mutant
     else{
       return(0)
     }
@@ -94,10 +66,10 @@ if(reinitialise_mutant <- TRUE){         ### When you turn it into TRUE, Rstudio
   while (i <= length(xm)){  
     for(j in 1:N){
     M_ini[j] <- Mini(x[j],xm[i]) 
-    }                          ### Asigning the value of function "Mini" for initial condition of Mutant
+    }                                       ### Asigning the value of function "Mini" for initial condition of Mutant
     
 
-yini <- c(F_ini, B_ini, M_ini) ### Initial condition to use in ode1D
+yini <- c(F_ini, B_ini, M_ini)              ### Initial condition to use in ode1D
 
 
 ### Solving the full system using ode.1D
@@ -124,13 +96,8 @@ R             <- rep(1,N)
 R             <- (Bacte[length(times),])*ro
 index_xm      <- (((xm)/dx)) + 1
 M_on_B[i]     <- (10^19)*Mutant[length(times),index_xm]/Bacte[length(times),index_xm]
-RM_on_B[i]    <- R[index_xm]*M_on_B[i] 
 i             <- i + 1 
 }
-
 plot(xm, M_on_B, ylab = 'Ratio of M/B (x10^-19)' 
     , xlab = 'mutant introduction position xm (cm)',
      type = 'l', col = 'black',lwd =2)
-# RM_on_B       <- R*M_on_B
-# #plot(xgrid$x.mid, RM_on_B, xlab = 'position x', type = 'l', col = "red", lwd = 2)
-# plot(xgrid$x.mid, R, xlab = 'position x',type = 'l', col = "red", lwd = 2)
