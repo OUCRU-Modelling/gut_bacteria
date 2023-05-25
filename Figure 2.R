@@ -100,4 +100,4 @@ i <- i +  1
 }
 plot(xm, Rxm, ylab = 'reproduction rate in 
      unit volume and time R', xlab = 'mutant introduction position xm (cm)',
-     type = 'l', col = 'pink',lwd =2)       ### Drar pink line in Fig 2
+     type = 'l', col = 'pink',lwd =2)       ### Draw pink line in Fig 2
