@@ -48,7 +48,7 @@ M_ini     <- rep(1,N)
 dx        <- L/(N-1)                         ### Spatial step sizes
 M0        <- (3.33*10^(-11))/dx              ### This formular is in the maintext page 3
 Rxm       <- rep(1, length(xm))              ### creating the array to contains R at xm, where R is reproduction rate in unit volume and time
-### in maintext, page 4
+                                             ### in maintext, page 4
 if(reinitialise_mutant <- TRUE){             ### When you turn it into TRUE, Rstudio will run the code in the bracket
   Mini      <- function (x,x0){
     a <- abs(x-x0)
@@ -68,35 +68,35 @@ while (i <= length(xm)){
   for(j in 1:N){
     M_ini[j] <- Mini(x[j],xm[i]) 
   }                                         ### Asigning the value of function "Mini" for initial condition of Mutant
-  
-  yini <- c(F_ini, B_ini, M_ini)              ### Initial condition to use in ode1D
-  
-  
-  ### Solving the full system using ode.1D
-  Sol_system <- function(t, Z, parms) {
-    Food  <- Z[1:N]
-    B     <- Z[(N+1):(2*N)]
-    M     <- Z[((2*N)+1):(3*N)]
-    dFood <- -(r/alpha)*(M+B)*Food/(k+Food) + tran.1D(C = Food, D = D, flux.up = v*F_in , flux.down = NULL, v=v, dx = xgrid)$dC
-    dB    <- r*B*Food/(k+Food)              + tran.1D(C = B   , D = D, flux.up = 0      , flux.down = NULL, v=v, dx = xgrid)$dC   ### tran1D to describe divection diffusion equation
-    dM    <- r*M*Food/(k+Food)              + tran.1D(C = M   , D = D, flux.up = 0      , flux.down = NULL, v=v, dx = xgrid)$dC
-    return(list(c(dFood, dB, dM)))
-  }
-  
-  print(system.time(
-    out1  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","B","M"), parms = NULL , dimens = N)
-  ))
-  
-  FOOD          <- out1[,2:(N+1)]             ### Extracting the food in the full system
-  Bacte         <- out1[,(N+2):(2*N+1)]       ### Extracting the Bacteria in the full system
-  Mutant        <- out1[,(2*(N+1)):(3*N+1)]   ### Extracting the Mutant in the full system
-  ro            <- rep(1,N)                   ### ro, the formular in maintext page 3 bottem line
-  ro            <- r*(FOOD[length(times),])/(kappa + FOOD[length(times),])
-  R             <- rep(1,N)
-  R             <- (Bacte[length(times),])*ro ### R, this formular in the maintext page 4
-  index_xm      <- (((xm[i])/dx)) + 1         ### index of xm in spatial discretization
-  Rxm[i]        <- R[index_xm]*10^-8          ### R, at the xm
-  i <- i +  1
+ 
+yini <- c(F_ini, B_ini, M_ini)              ### Initial condition to use in ode1D
+
+
+### Solving the full system using ode.1D
+Sol_system <- function(t, Z, parms) {
+  Food  <- Z[1:N]
+  B     <- Z[(N+1):(2*N)]
+  M     <- Z[((2*N)+1):(3*N)]
+  dFood <- -(r/alpha)*(M+B)*Food/(k+Food) + tran.1D(C = Food, D = D, flux.up = v*F_in , flux.down = NULL, v=v, dx = xgrid)$dC
+  dB    <- r*B*Food/(k+Food)              + tran.1D(C = B   , D = D, flux.up = 0      , flux.down = NULL, v=v, dx = xgrid)$dC   ### tran1D to describe divection diffusion equation
+  dM    <- r*M*Food/(k+Food)              + tran.1D(C = M   , D = D, flux.up = 0      , flux.down = NULL, v=v, dx = xgrid)$dC
+  return(list(c(dFood, dB, dM)))
+}
+
+print(system.time(
+  out1  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","B","M"), parms = NULL , dimens = N)
+))
+
+FOOD          <- out1[,2:(N+1)]             ### Extracting the food in the full system
+Bacte         <- out1[,(N+2):(2*N+1)]       ### Extracting the Bacteria in the full system
+Mutant        <- out1[,(2*(N+1)):(3*N+1)]   ### Extracting the Mutant in the full system
+ro            <- rep(1,N)                   ### ro, the formular in maintext page 3 bottem line
+ro            <- r*(FOOD[length(times),])/(kappa + FOOD[length(times),])
+R             <- rep(1,N)
+R             <- (Bacte[length(times),])*ro ### R, this formular in the maintext page 4
+index_xm      <- (((xm[i])/dx)) + 1         ### index of xm in spatial discretization
+Rxm[i]        <- R[index_xm]*10^-8          ### R, at the xm
+i <- i +  1
 }
 plot(xm, Rxm, ylab = 'reproduction rate in 
      unit volume and time R', xlab = 'mutant introduction position xm (cm)',
