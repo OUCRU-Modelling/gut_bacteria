@@ -3,7 +3,7 @@ library(bvpSolve)
 library(ReacTran)
 library(deSolve)
 L     <- 6
-N     <- 10000
+N     <- 10033      ### I also discovered that in order to obtain the exact solution, you also need to set N is odd !!!
 v     <- 0.5
 k     <- 0.1
 F_in  <- 1/v
@@ -17,7 +17,7 @@ tmax  <- 510
 vec_F_in  <- rep(1,N)*F_in               
 times     <- seq(0, tmax,len=100)                        ### discretization of times
 xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
-x         <- xgrid$x.int                                 ### Our discretization points
+x         <- xgrid$x.mid    ### We should cho x.mid rather than x.int ### Our discretization points
 F_ini     <- vec_F_in*0.9
 B_ini     <- 0.1*alpha*vec_F_in
 
@@ -37,13 +37,13 @@ print(system.time(
 
 
 #### Solve the system with mutant first appear at xm
-tmax      <- 1000
+tmax      <- 500
 Food_star <- out[100,2:(N+1)]                 ### The initial condition of PDE system, is in Food whereas in without mutant, the solution is F/F_in
 B_star    <- out[100,(N+2):(2*N+1)]           ### The equation of B_star and F_star in no mutant system
-xm        <- seq(0,6,by=0.05)
-times     <- seq(0, tmax,len=200)             ### discretization of times
+xm        <- seq(0,6,by=0.1)
+times     <- seq(0, tmax,len=100)             ### discretization of times
 xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ## generating the grid for our solution
-x         <- xgrid$x.mid                      ### Our discretization points
+x         <- xgrid$x.mid   ## x.mid           ### Our discretization points
 F_ini     <- Food_star 
 B_ini     <- B_star                           ### Our initial condition of the system (at t = 0)
 M_ini     <- rep(1,N)
@@ -95,7 +95,7 @@ ro            <- r*(FOOD[length(times),])/(kappa + FOOD[length(times),])
 R             <- rep(1,N)
 R             <- (Bacte[length(times),])*ro
 index_xm      <- (((xm)/dx)) + 1
-M_on_B[i]     <- (10^19)*Mutant[length(times),index_xm]/Bacte[length(times),index_xm]
+M_on_B[i]     <- (10^19)*Mutant[length(times),N-1]/Bacte[length(times),N-1]
 i             <- i + 1 
 }
 plot(xm, M_on_B, ylab = 'Ratio of M/B (x10^-19)' 
