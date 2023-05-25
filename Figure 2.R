@@ -51,6 +51,7 @@ dx        <- L/(N-1)
 M0        <- (3.33*10^(-11))/dx
 M_on_B    <- rep(1,length(xm))
 RM_on_B   <- rep(1,length(xm))
+Rxm       <- rep(1, length(xm)) 
 i         <- 1
 if(reinitialise_mutant <- TRUE){              ### When you turn it into TRUE, Rstudio will run the code in the bracket
   Mini      <- function (x,x0){
@@ -94,10 +95,18 @@ ro            <- rep(1,N)
 ro            <- r*(FOOD[length(times),])/(kappa + FOOD[length(times),])
 R             <- rep(1,N)
 R             <- (Bacte[length(times),])*ro
-index_xm      <- (((xm)/dx)) + 1
+index_xm      <- (((xm[i])/dx)) + 1         ### index of xm in spatial discretization
+Rxm[i]        <- R[index_xm]*10^-8 
 M_on_B[i]     <- (10^19)*Mutant[length(times),N-1]/Bacte[length(times),N-1]
 i             <- i + 1 
 }
+par(mar = c(6, 5, 5, 7) + 0.05 ) 
 plot(xm, M_on_B, ylab = 'Ratio of M/B (x10^-19)' 
     , xlab = 'mutant introduction position xm (cm)',
      type = 'l', col = 'black',lwd =2)
+par(new = TRUE) 
+plot(xm, Rxm, ylab = "", xlab = "", axes=FALSE,
+     type = 'l', col = 'pink',lwd =2) 
+axis(side = 4, at = pretty(range(ro)),col="pink", line = 4)
+mtext("reproduction rate in 
+     unit volume and time R", side = 4, line = 6,col="pink")
