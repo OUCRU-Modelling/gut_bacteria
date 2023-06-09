@@ -2,19 +2,24 @@ rm(list = ls())
 library(bvpSolve)
 library(ReacTran)
 library(deSolve)
-L     <- 6
-N     <- 10030      ### I also discovered that in order to obtain the exact solution, you also need to set N is odd !!!
-v     <- c(1,2,3,4)
-D     <- c(1,2,3,4)
-k     <- 0.1
-F_in  <- 1/v
-kappa <- 0.1/(1/v)  # Note that we only use kappa to solve the initial condition for the with mutant system 
-# Assigning the parameters values
-r     <- 0.42
-lamb  <- (r*D)/(v^2)
-xic   <- (L*v)/D
-alpha <- 6.13*(10^8)
-tmax  <- 510
+L           <- 6
+N           <- 10030                  ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
+v           <- c(1,2,3,4)             ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
+D           <- c(1,2,3,4)             ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
+k           <- 0.1                    ### Monod constant
+F_in        <- 1/v[1]                 ### Food concentration at the entrance of the gut
+A_in        <- 1/v[2]                 ### Antibiotic concentration at the entrance of the gut
+
+##### Assigning the parameters values #####
+r           <- c(1, 2)                ### Growth rate of Bacteria and Mutants respectively
+alpha       <- c(1, 2)                ### Yield of Food to Bacteria and mutants respectively
+beta        <- c(1, 2)                ### Consumption of antibiotic in killing Bacteria and mutants respectively
+A_50        <- c(1, 2)                ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
+delta_max   <- 1
+lamb        <- (r*D)/(v^2)
+xic         <- (L*v)/D
+alpha       <- 6.13*(10^8)
+tmax        <- 510
 vec_F_in  <- rep(1,N)*F_in               
 times     <- seq(0, tmax,len=100)                        ### discretization of times
 xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = 200) ### generating the gird for our solution
