@@ -3,7 +3,7 @@ library(bvpSolve)
 library(ReacTran)
 library(deSolve)
 L     <- 6
-N     <- 10033      ### I also discovered that in order to obtain the exact solution, you also need to set N is odd !!!
+N     <- 10030      ### I also discovered that in order to obtain the exact solution, you also need to set N is odd !!!
 v     <- 0.5
 k     <- 0.1
 F_in  <- 1/v
@@ -16,7 +16,7 @@ alpha <- 6.13*(10^8)
 tmax  <- 510
 vec_F_in  <- rep(1,N)*F_in               
 times     <- seq(0, tmax,len=100)                        ### discretization of times
-xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
+xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = 200) ### generating the gird for our solution
 x         <- xgrid$x.mid    ### We should cho x.mid rather than x.int ### Our discretization points
 F_ini     <- vec_F_in*0.9
 B_ini     <- 0.1*alpha*vec_F_in
