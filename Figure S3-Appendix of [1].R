@@ -1,29 +1,29 @@
 library(bvpSolve)
 library(phaseR)
-L <- 6
-v <- 0.536
-k <- 0.054
-D <- 0.2 # Assigning the parameters values
-r <- 0.42
-lamb <- (r*D)/(v^2) ## I have to set to types of lamda values,because in the case
+L     <- 6
+v     <- 0.536
+k     <- 0.054
+D     <- 0.2 # Assigning the parameters values
+r     <- 0.42
+lamb  <- (r*D)/(v^2) ## I have to set to types of lamda values,because in the case
 #lamb <- 0.290      ## panel S3_C,if I use the rounded number of lambda as in
                     ## the article, the solution will be very weird, so I have to use 
                     ## the exact formular of lambda to make the right graph as in article
 
-xic <- (L*v)/D
+xic   <- (L*v)/D
 alpha <- 6.13*(10^8)
-phi0 <- 0 #  our object Numerical solution is phi
+phi0  <- 0 #  our object Numerical solution is phi
 #  phi0 is initial guess
 #  v is phi's 1st derivative
 
-N <- 500 #Number of discreteization points
+N     <- 500 #Number of discreteization points
 
-s <- seq(0,xic,length.out = N) # independent variable
+s     <- seq(0,xic,length.out = N) # independent variable
 
-func <- function(s, Y, pars){
+func  <- function(s, Y, pars){
   with (as.list(Y), {
-    dphi=v
-    dv=v+(lamb*phi*(1-phi))/(k+phi)   # our ODEs system
+    dphi <- v
+    dv   <- v+(lamb*phi*(1-phi))/(k+phi)   # our ODEs system
     return(list(c(dphi, dv)))
   })
 }
