@@ -18,7 +18,7 @@ A_50        <- 4.91                   ### Concentration of Antibiotic correspond
 delta_max   <- 1.13083
 tmax        <- 510
 times       <- seq(0, tmax,len=100)                        ### discretization of times
-xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = 200) ### generating the gird for our solution
+xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid    ### We should cho x.mid rather than x.int ### Our discretization points
 F_ini       <- rep(1,N)*F_in*0.9
 A_ini       <- rep(1,N)*A_in*0.9
@@ -29,12 +29,14 @@ Sol_system  <- function(t, Y, parms) {
   A         <- Y[(N+1):(2*N)]
   B         <- Y[((2*N)+1):(3*N)]
   dFood     <- -(r/alpha[1])*B*Food/(k+Food)  + tran.1D(C = Food, D = D[1] , flux.up = 1   , flux.down = NULL, v=v[1], dx = xgrid)$dC
-  dA        <- -(delta_max/beta[1])*B*(A^k)/(A^k+A_50[1]) + -(delta_max/beta[2])*M*(A^k)/(A^k+A_50[2])   + tran.1D(C = Food, D = D[2] , flux.up = 1   , flux.down = NULL, v=v[2], dx = xgrid)$dC
+  dA        <- -(delta_max/beta)*B*(A^k)/(A^k+A_50) + tran.1D(C = Food, D = D[2] , flux.up = 1   , flux.down = NULL, v=v[2], dx = xgrid)$dC
   dB        <- r*B*Food/(k+Food) + -delta_max*B*(A^k)/(A^k+A_50[1]) + tran.1D(C = B , D = D[3], flux.up = 0 , flux.down = NULL, v=v[3] , dx = xgrid)$dC                                         ### tran1D to describe divection diffusion equation
   
-  return(list(c(dFood, dB, dM)))
+  return(list(c(dFood, dA, dB)))
 }
 yini <- c(F_ini, A_ini, B_ini)
 print(system.time(
   out  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","A","B"), parms = NULL , dimens = N)
 ))
+outtime <- seq(from = tmax-60, to = tmax, by = 20)
+matplot.1D(out, which = "Food", ylim = c(0, 1), las = 1, xlim = c(0,6), subset = time %in% outtime, grid = xgrid$x.mid , xlab="x", ylab='Food', main = "Food", type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
