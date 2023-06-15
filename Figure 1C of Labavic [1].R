@@ -7,10 +7,10 @@ k               <- 0.1
 r               <- 0.42
 alpha           <- 6.13*(10^8)
 ### it reached the stationary state
-v               <- seq(0,2, len=30)
-D               <- seq(0,50, len=30)
+v               <- seq(0, 2, len=30)       ### initialize array contains velocities
+D               <- seq(0,50, len=30)       ### initialize array contains Diffusion Coefficients
 lamb            <- matrix(rep(1, len=900),ncol=length(v),nrow=length(D))
-conc_profile    <- matrix(rep(1, len=900),ncol=length(v),nrow=length(D))
+conc_profile    <- matrix(rep(1, len=900),ncol=length(v),nrow=length(D))  ### z-values in Heat map
 F_in            <- matrix(rep(1, len=900),ncol=length(v),nrow=length(D))
 i               <- 1
 j               <- 1
@@ -19,7 +19,7 @@ while (j <= length(D)){
 lamb[i, j]      <- (r*D[j])/(v[i]^2)
 xic             <- (L*v[i])/D[j]
 tmax            <- 500  
-N               <- 6000       ### N must be very large in order to abtain the exact solution compared to stationary system (the old code)
+N               <- 10031                     ### N must be very large in order to abtain the exact solution compared to stationary system (the old code)
 F_in[i, j]      <- 1/v[i]
 vec_F_in        <- rep(1,N)*F_in[i, j]               
 times           <- seq(0, tmax,len=100)                        ### discretization of times

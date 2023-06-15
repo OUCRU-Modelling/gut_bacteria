@@ -27,9 +27,9 @@ Sol_system <- function(t, Y, parms) {
   dB    <- r*B*Food/(k+Food)          + tran.1D(C = B   , D = D, flux.up = 0     , flux.down = NULL, v=v, dx = xgrid)$dC
   return(list(c(dFood, dB)))
 }
-yini <- c(F_ini, B_ini)
+yini <- c(F_ini, B_ini)                                                                           
 print(system.time(
-  out  <- ode.1D(y = yini, func = Sol_system, times = times,nspec = 2, names = c("Food","B"), parms = NULL , dimens = N)
+  out  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 2, names = c("Food","B"), parms = NULL , dimens = N)
 ))
 out[,2:(N+1)]   <- out[,2:(N+1)]/F_in
 outtime <- seq(from = tmax-60, to = tmax, by = 20)
