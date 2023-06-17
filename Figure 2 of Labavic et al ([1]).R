@@ -4,11 +4,11 @@ library(ReacTran)
 library(deSolve)
 L         <- 6
 N         <- 10030      ### I also discovered that in order to obtain the exact solution, you also need to set N is odd !!!
-v         <- 0.5
+v         <- 0.001
 k         <- 0.1
 F_in      <- 1/v
 kappa     <- 0.1/(1/v)  # Note that we only use kappa to solve the initial condition for the with mutant system 
-D         <- 0.2        # Assigning the parameters values
+D         <- 20        # Assigning the parameters values
 r         <- 0.42
 lamb      <- (r*D)/(v^2)
 xic       <- (L*v)/D
@@ -25,13 +25,13 @@ B_ini     <- 0.1*alpha*vec_F_in
 func <- function(t, Y, parms) {
   Food  <- Y[1:N]
   B     <- Y[(N+1):(2*N)]
-  dFood <- -(r/alpha)*B*Food/(k+Food) + tran.1D(C = Food, D = D, flux.up = 1     , flux.down = NULL, v=v, dx = xgrid)$dC
-  dB    <- r*B*Food/(k+Food)          + tran.1D(C = B   , D = D, flux.up = 0     , flux.down = NULL, v=v, dx = xgrid)$dC
+  dFood <- -(r/alpha)*B*Food/(k+Food) + tran.1D(C = Food, D = D, flux.up = 1  , flux.down = NULL, v=v, dx = xgrid)$dC
+  dB    <- r*B*Food/(k+Food)          + tran.1D(C = B   , D = D, flux.up = 0  , flux.down = NULL, v=v, dx = xgrid)$dC
   return(list(c(dFood, dB)))
 }
 yini <- c(F_ini, B_ini)
 print(system.time(
-  out  <- ode.1D(y = yini, func = func, times = times,nspec = 2, names = c("Food","B"), parms = NULL , dimens = N)
+  out  <- ode.1D(y = yini, func = func, times = times, nspec = 2, names = c("Food","B"), parms = NULL , dimens = N)
 ))
 
 
