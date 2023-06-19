@@ -3,20 +3,20 @@ library(bvpSolve)
 library(ReacTran)
 library(deSolve)
 L           <- 6
-N           <- 10031                  ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(0.5,0.5,0.5)             ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
-D           <- c(0.2,0.2,0.2)             ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
-k           <- 0.1                    ### Monod constant
-F_in        <- 1/v[1]                 ### Food concentration at the entrance of the gut
-A_in        <- 1/v[2]                 ### Antibiotic concentration at the entrance of the gut
+N           <- 10031                ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
+v           <- c(0.5,0.5,0.5)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
+D           <- c(0.2,0.2,0.2)       ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
+k           <- 0.1                  ### Monod constant
+F_in        <- 1/0.5                ### Food concentration at the entrance of the gut
+A_in        <- 1/0.5                ### Antibiotic concentration at the entrance of the gut
 
 ##### Assigning the parameters values #####
-r           <- 0.42                       ### Growth rate of Bacteria 
-alpha       <- 6.13*10^8              ### Yield of Food to Bacteria and mutants respectively
+r           <- 0.42                 ### Growth rate of Bacteria 
+alpha       <- 6.13*10^8            ### Yield of Food to Bacteria and mutants respectively
 beta        <- 0.08208                ### Consumption of antibiotic in killing Bacteria and mutants respectively
-A_50        <- 4.91                   ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
+A_50        <- 0.491                 ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
 delta_max   <- 1.13083
-tmax        <- 510
+tmax        <- 500
 times       <- seq(0, tmax,len=100)                        ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid    ### We should cho x.mid rather than x.int ### Our discretization points
@@ -28,9 +28,9 @@ Sol_system  <- function(t, Y, parms) {
   Food      <- Y[1:N]
   A         <- Y[(N+1):(2*N)]
   B         <- Y[((2*N)+1):(3*N)]
-  dFood     <- -(r/alpha[1])*B*Food/(k+Food)  + tran.1D(C = Food, D = D[1] , flux.up = 1   , flux.down = NULL, v=v[1], dx = xgrid)$dC
-  dA        <- -(delta_max/beta)*B*(A^k)/(A^k+A_50) + tran.1D(C = Food, D = D[2] , flux.up = 1   , flux.down = NULL, v=v[2], dx = xgrid)$dC
-  dB        <- r*B*Food/(k+Food) + -delta_max*B*(A^k)/(A^k+A_50[1]) + tran.1D(C = B , D = D[3], flux.up = 0 , flux.down = NULL, v=v[3] , dx = xgrid)$dC                                         ### tran1D to describe divection diffusion equation
+  dFood     <- -(r/alpha)*B*Food/(k+Food)       + tran.1D(C = Food, D = 0.2 , flux.up = 1   , flux.down = NULL, v = 0.5, dx = xgrid)$dC
+  dA        <- -(delta_max/beta)*B*(A)/(A+A_50) + tran.1D(C = A   , D = 0.2 , flux.up = 1   , flux.down = NULL, v = 0.5, dx = xgrid)$dC
+  dB        <- r*B*Food/(k+Food) + -delta_max*B*(A)/(A+A_50) + tran.1D(C = B , D = 0.2, flux.up = 0 , flux.down = NULL, v = 0.5, dx = xgrid)$dC                                         ### tran1D to describe divection diffusion equation
   
   return(list(c(dFood, dA, dB)))
 }
@@ -38,5 +38,13 @@ yini <- c(F_ini, A_ini, B_ini)
 print(system.time(
   out  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","A","B"), parms = NULL , dimens = N)
 ))
-outtime <- seq(from = tmax-60, to = tmax, by = 20)
-matplot.1D(out, which = "Food", ylim = c(0, 1), las = 1, xlim = c(0,6), subset = time %in% outtime, grid = xgrid$x.mid , xlab="x", ylab='Food', main = "Food", type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
+out[,(2*(N+1)):(3*N+1)] <- out[,(2*(N+1)):(3*N+1)]*10^-9
+Bacte                   <- out[,(2*(N+1)):(3*N+1)]
+Antibiotic              <- out[,(N+2):(2*N+1)]
+outtime                 <- seq(from = tmax-60, to = tmax, by = 20)
+matplot.1D(out, which = "Food", ylim = c(0, 2.1), las = 1, xlim = c(0,6)
+    , subset = time %in% outtime, grid = xgrid$x.mid , xlab="x", ylab='Antibiotic'
+    , main = "Antibiotic", type='l', lwd = 2, col= 'red') 
+# matplot.1D(out, which = "B", las = 1, xlim = c(0,6)
+#     , subset = time %in% outtime, grid = xgrid$x.mid , xlab="x", ylab='Bacteria'  
+#     , main = "Bacteria"  , type='l', lwd = 2, col= 'blue') 

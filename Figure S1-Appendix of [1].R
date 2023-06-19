@@ -3,15 +3,15 @@ library(bvpSolve)
 library(ReacTran)
 library(deSolve)
 L         <- 6
-v         <- 3
+v         <- 0.5
 k         <- 0.1
 F_in      <- 1/v
-D         <- 0.0051       # Assigning the parameters values
+D         <- 0.2       # Assigning the parameters values
 r         <- 0.42
 alpha     <- 6.13*(10^8)
 tmax      <- 500        ### I choose tmax=500 because in the article, they say when our system pass t=500hrs
                         ### it reached the stationary state
-N         <- 6000       ### N must be very large in order to abtain the exact solution compared to stationary system (the old code)
+N         <- 10000       ### N must be very large in order to abtain the exact solution compared to stationary system (the old code)
 vec_F_in  <- rep(1,N)*F_in               
 times     <- seq(0, tmax,len=100)                        ### discretization of times
 xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
