@@ -32,5 +32,5 @@ print(system.time(
 
 out[,2:(N+1)]   <- out[,2:(N+1)]/F_in
 outtime <- seq(from = tmax-60, to = tmax, by = 20)
-matplot.1D(out, which = "Food", ylim = c(0, 1), las = 1, xlim = c(0,6), subset = time %in% outtime, grid = xgrid$x.mid , xlab="x", ylab='Food', main = "Solution 2", type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
+matplot.1D(out, which = "A", ylim = c(0, 1), las = 1, xlim = c(0,6), subset = time %in% outtime, grid = xgrid$x.mid , xlab="x", ylab='Food', main = "Solution 2", type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
 

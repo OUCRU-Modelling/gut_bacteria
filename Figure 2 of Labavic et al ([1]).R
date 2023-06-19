@@ -84,9 +84,9 @@ Sol_system <- function(t, Z, parms) {
   return(list(c(dFood, dB, dM)))
 }
 
-print(system.time(
-  out  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","B","M"), parms = NULL , dimens = N)
-))
+
+out  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","B","M"), parms = NULL , dimens = N)
+
 
 FOOD          <- out[,2:(N+1)]
 Mutant        <- out[,(2*(N+1)):(3*N+1)]

@@ -43,7 +43,7 @@ while(i<=length(D)){                                         ### creating the lo
   }
   i <- i+1
 }
-par(mar = c(6, 5, 5, 7) + 0.05 )
+par(mar = c(5, 5, 5, 6) + 0.05 )
 image.plot(t(conc_profile),col = NULL, axes=FALSE, legend = TRUE)
 contour(t(conc_profile), add=TRUE)
 
