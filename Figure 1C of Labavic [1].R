@@ -45,7 +45,7 @@ while(i<=length(D)){                                         ### creating the lo
 }
 par(mar = c(4, 3, 3, 5) + 0.05)
 a <- log(20*v, max(20*v))
-b <- log(10*D, max10*D)
+b <- log(10*D, max(10*D))
 image.plot(t(conc_profile),x=a, y=b,col = NULL, axes=FALSE)
 contour(t(conc_profile), add=TRUE)
 
