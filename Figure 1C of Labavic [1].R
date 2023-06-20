@@ -8,7 +8,7 @@ library(reshape2)
 library(viridis)
 library(fields)
 L             <- 6                                               ### Assigning the parameters values
-r             <- 0.42
+r             <- 0.42 
 alpha         <- 6.13*(10^8)
 k             <- 0.1
 v             <- c(seq(0.05, 0.1, len=19), seq(0.105, 0.2, len=15), seq(0.201, 0.5, len = 14), seq(0.505, 1, len=8), seq(1, 2.6, len =5))     ### v and D scale have diffrent step sizes in it (Focus on Figure C, you can see the different leaps for diffrent interval of values)
@@ -43,9 +43,9 @@ while(i<=length(D)){                                         ### creating the lo
   }
   i <- i+1
 }
-par(mar = c(5, 5, 5, 6) + 0.05 )
-image.plot(t(conc_profile),col = NULL, axes=FALSE, legend = TRUE)
+par(mar = c(4, 3, 3, 5) + 0.05)
+image.plot(t(conc_profile),col = NULL, axes=FALSE)
 contour(t(conc_profile), add=TRUE)
 
 
-#heatmap(conc_profile, Rowv=NA, Colv=NA, col = terrain.colors(256))
+#heatmap(conc_profile,cexRow=D,cexCol=v, Rowv=NA, Colv=NA, col = hcl.colors(60))

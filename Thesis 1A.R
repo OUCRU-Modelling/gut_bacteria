@@ -13,11 +13,11 @@ A_in        <- 1/0.5                ### Antibiotic concentration at the entrance
 ##### Assigning the parameters values #####
 r           <- 0.42                 ### Growth rate of Bacteria 
 alpha       <- 6.13*10^8            ### Yield of Food to Bacteria and mutants respectively
-beta        <- 0.08208                ### Consumption of antibiotic in killing Bacteria and mutants respectively
-A_50        <- 0.491                 ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
-delta_max   <- 1.13083
-tmax        <- 500
-times       <- seq(0, tmax,len=100)                        ### discretization of times
+beta        <- 8.208*10^5                ### Consumption of antibiotic in killing Bacteria and mutants respectively
+A_50        <- 49.1                 ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
+delta_max   <- 1.113083
+tmax        <- 700
+times       <- seq(0, tmax,len=200)                        ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid    ### We should cho x.mid rather than x.int ### Our discretization points
 F_ini       <- rep(1,N)*F_in*0.9
@@ -39,12 +39,20 @@ print(system.time(
   out  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","A","B"), parms = NULL , dimens = N)
 ))
 out[,(2*(N+1)):(3*N+1)] <- out[,(2*(N+1)):(3*N+1)]*10^-9
-Bacte                   <- out[,(2*(N+1)):(3*N+1)]
-Antibiotic              <- out[,(N+2):(2*N+1)]
-outtime                 <- seq(from = tmax-60, to = tmax, by = 20)
-matplot.1D(out, which = "Food", ylim = c(0, 2.1), las = 1, xlim = c(0,6)
-    , subset = time %in% outtime, grid = xgrid$x.mid , xlab="x", ylab='Antibiotic'
-    , main = "Antibiotic", type='l', lwd = 2, col= 'red') 
-# matplot.1D(out, which = "B", las = 1, xlim = c(0,6)
-#     , subset = time %in% outtime, grid = xgrid$x.mid , xlab="x", ylab='Bacteria'  
-#     , main = "Bacteria"  , type='l', lwd = 2, col= 'blue') 
+Food                    <- out[length(times),2:(N+1)]
+Bacte                   <- out[length(times),(2*(N+1)):(3*N+1)]
+Antibiotic              <- out[length(times),(N+2):(2*N+1)]
+outtime                 <- seq(from = tmax-60, to = tmax, by = 10)
+###### Draw the full non-mutant profile
+par(mar = c(6, 5, 5, 7) + 0.05)
+plot(x, Food, xlab='position', ylab='food', col='red', type='l')
+par(new=TRUE)
+plot(x, Antibiotic,col="orange",axes=FALSE,xlab="", ylab="", lwd=1.5, type="l")
+axis(side = 4, at = pretty(range(Antibiotic)),col="orange", line = 4)
+mtext("antibiotic", side = 4, line = 6,col="orange")
+par(new = TRUE)
+plot(x, Bacte , col = "blue",              
+     axes = FALSE, xlab = "",ylab="", lwd=1.5, type = "l")
+axis(side = 4, at = pretty(range(Bacte)),col="blue")      
+
+mtext("Bacteria B ( x10 ^9/mL)",col="blue", side = 4,line =2)
