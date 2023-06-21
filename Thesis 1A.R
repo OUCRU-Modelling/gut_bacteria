@@ -13,16 +13,16 @@ A_in        <- 1/0.5                ### Antibiotic concentration at the entrance
 ##### Assigning the parameters values #####
 r           <- 0.42                 ### Growth rate of Bacteria 
 alpha       <- 6.13*10^8            ### Yield of Food to Bacteria and mutants respectively
-beta        <- 8.208*10^5                ### Consumption of antibiotic in killing Bacteria and mutants respectively
-A_50        <- 49.1                 ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
-delta_max   <- 1.113083
+beta        <- 8.208*10^8                ### Consumption of antibiotic in killing Bacteria and mutants respectively
+A_50        <- 0.1                 ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
+delta_max   <- 0.07
 tmax        <- 700
 times       <- seq(0, tmax,len=200)                        ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid    ### We should cho x.mid rather than x.int ### Our discretization points
 F_ini       <- rep(1,N)*F_in*0.9
-A_ini       <- rep(1,N)*A_in*0.9
-B_ini       <- rep(1,N)*0.1*(alpha*F_in-beta*A_in)
+A_ini       <- rep(1,N)*A_in #*0.9
+B_ini       <- rep(1,N)*0.1*(alpha*F_in)#-beta*A_in)
 
 Sol_system  <- function(t, Y, parms) {
   Food      <- Y[1:N]
@@ -47,9 +47,9 @@ outtime                 <- seq(from = tmax-60, to = tmax, by = 10)
 par(mar = c(6, 5, 5, 7) + 0.05)
 plot(x, Food, xlab='position', ylab='food', col='red', type='l')
 par(new=TRUE)
-plot(x, Antibiotic,col="orange",axes=FALSE,xlab="", ylab="", lwd=1.5, type="l")
-axis(side = 4, at = pretty(range(Antibiotic)),col="orange", line = 4)
-mtext("antibiotic", side = 4, line = 6,col="orange")
+# plot(x, Antibiotic,col="orange",axes=FALSE,xlab="", ylab="", lwd=1.5, type="l")
+# axis(side = 4, at = pretty(range(Antibiotic)),col="orange", line = 4)
+# mtext("antibiotic", side = 4, line = 6,col="orange")
 par(new = TRUE)
 plot(x, Bacte , col = "blue",              
      axes = FALSE, xlab = "",ylab="", lwd=1.5, type = "l")
