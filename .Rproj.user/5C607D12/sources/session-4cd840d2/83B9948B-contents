@@ -10,7 +10,6 @@ editor_options:
 knitr::opts_chunk$set(message = FALSE)
 ```
 
-
 ## Loading some packages:
 
 ```{r}
@@ -18,43 +17,39 @@ library(purrr)
 library(dplyr)
 ```
 
-
 ## Figure 1S
 
 The variables of the model:
 
-variable | unit | description
-:-------:|:----:| ------------------
-$F$      | mM   | food concentration
+| variable | unit | description        |
+|:--------:|:----:|--------------------|
+|   $F$    |  mM  | food concentration |
 
 The parameters of the model:
 
-parameter     | unit     | description                              | R variable 
-:------------:|:--------:| ---------------------------------------- | ----------
-$L$           | cm       | length of the gut                        | `L`
-$x$           | cm       | location along the gut from its entrance | `x`
-$F_\mbox{in}$ | mM       | food inflow at the entrance of the gut   | `Fin`
-$k$           | mM       | Monod constant                           | `k`
-$r$           | /h       | maximum growth rate                      | `r`
-$v$           | cm/h     | flow velocity                            | `v`
-$D$           | cm$^2$/h | diffusion coefficient                    | `D`
+|   parameter   |   unit   | description                              | R variable |
+|:-------------:|:--------:|------------------------------------------|------------|
+|      $L$      |    cm    | length of the gut                        | `L`        |
+|      $x$      |    cm    | location along the gut from its entrance | `x`        |
+| $F_\mbox{in}$ |    mM    | food inflow at the entrance of the gut   | `Fin`      |
+|      $k$      |    mM    | Monod constant                           | `k`        |
+|      $r$      |    /h    | maximum growth rate                      | `r`        |
+|      $v$      |   cm/h   | flow velocity                            | `v`        |
+|      $D$      | cm$^2$/h | diffusion coefficient                    | `D`        |
 
 Changes of variables:
 
 $$
 s = \frac{v}{D}x
-$$
-and
+$$ and
 
 $$
 \phi(s) = \frac{F(s)}{F_\mbox{in}}
-$$
-which leads to this ODE:
+$$ which leads to this ODE:
 
 $$
 0 = \frac{\partial^2 \phi}{\partial s^2} - \frac{\partial \phi}{\partial s} - \lambda\frac{\phi(1 - \phi)}{\kappa + \phi}
-$$
-where
+$$ where
 
 $$
 \kappa = \frac{k}{F_\mbox{in}}
@@ -154,4 +149,3 @@ plot(1, 1, xlim = c(0, 6), ylim = 0:1, type = "l",
 walk2(out, color_generator(length(v_val)),
       function(y, z) with(y, lines(x, phi, col = z, lwd = 3)))
 ```
-
