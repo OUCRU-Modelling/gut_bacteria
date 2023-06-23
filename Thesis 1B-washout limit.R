@@ -4,8 +4,8 @@ library(ReacTran)
 library(deSolve)
 L           <- 6
 N           <- 10031                 ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(1, 0.3857,  0.5)    ### flow velocity of Food, Antibiotic, Bacteria 
-D           <- c(05.0, 0.2, 2)       ### Diffusion coefficient of Food, Antibiotic, Bacteria respectively
+v           <- c(0.4, 0.4, 0.4)     ### flow velocity of Food, Antibiotic, Bacteria 
+D           <- c(2.2, 2.2, 2.2)     ### Diffusion coefficient of Food, Antibiotic, Bacteria respectively
 k           <- 0.1                   ### Monod constant
 F_in        <- 1/v[1]                ### Food concentration at the entrance of the gut
 A_in        <- 1/v[2]                ### Antibiotic concentration at the entrance of the gut
@@ -18,8 +18,9 @@ A_50        <- 0.1                   ### Concentration of Antibiotic correspondi
 tmax        <- 700
 alpha1      <- (r*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50 + A_in)
-delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)        ### Possible wash out limit
-delta_max   <- delta_wo + 0.01
+delta_wo1   <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)        ### Possible wash out limit
+delta_max   <- delta_wo + 0.0001
+delta_wo2   <- L/(alpha1- delta_max*alpha2)
 times       <- seq(0, tmax,len=200)                           ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N)    ### generating the gird for our solution
 x           <- xgrid$x.mid                                    ### We should cho x.mid rather than x.int 
@@ -57,3 +58,4 @@ plot(x, Bacte , col = "blue",
      axes = FALSE, xlab = "",ylab="", lwd=1.5, type = "l")
 axis(side = 4, at = pretty(range(Bacte)),col="blue")      
 mtext("Bacteria",col="blue", side = 4,line =2)
+print(delta_wo)
