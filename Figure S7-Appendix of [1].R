@@ -51,7 +51,7 @@ xm        <- 3                            ### the first location mutant appear
 M0        <- 3.33*10^(-11)                ### mutant concentration at this location (xm), initial concentration of Mutant
 times     <- seq(0, 1,len=100)            ### discretization of times
 xgrid     <- setup.grid.1D (x.up = 0, x.down = L, N = N) ## generating the gird for our solution
-x         <- xgrid$x.int                  ### Our discretization points
+x         <- xgrid$x.mid                  ### Our discretization points
 F_ini     <- Food_star
 B_ini     <- B_star                       ### Our initial condition of the system (at t = 0)
 M_ini     <- rep(1,N)
@@ -92,8 +92,10 @@ a3     <- xm*rep(1,length(times)) +  v*times
 ### Visualization
 par(mfrow = c(2,2))
 par(mar = c(3.7,3.7,4,4)+0.4)
-image(out, which = "M", legend = TRUE, xlab="times", ylab="position", grid = x) ### drawing heatmap
-#matplot.1D(out, which = "B", xlim = c(0,6), grid = xgrid$x.mid , xlab="x", ylab='Food', type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
-lines(times, a1, col="white")
-lines(times, a2, col="white")
-lines(times, a3, col="black")
+#image(out, which = "M", legend = TRUE, xlab="times", ylab="position", grid = x) ### drawing heatmap
+matplot.1D(out, which = "M", xlim = c(0,6), grid = xgrid$x.mid , xlab="x", ylab='Food', type='l', lwd = 2, col= 'red') ### plot in 2D each of Food; Bacteria or Mutant
+# lines(times, a1, col="white")
+# lines(times, a2, col="white")
+# lines(times, a3, col="black")
+Mutant <- out[length(times),(2*(N+1)):(3*N+1)]
+plot(x, Mutant, type = 'l', col='red')
