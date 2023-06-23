@@ -50,7 +50,7 @@ A_50        <- c(0.1, 0.01)           ### Concentration of Antibiotic correspond
 alpha1      <- (r[1]*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50[1] + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)        ### Possible wash out limit
-delta_max   <- c(delta_wo - 0.02, 0.001)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
+delta_max   <- c(delta_wo - 0.02, 0.000)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid
 M0          <- 3.33*10^(-11)  
