@@ -4,8 +4,8 @@ library(ReacTran)
 library(deSolve)
 L           <- 6
 N           <- 10031                 ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(0.4, 0.4, 0.4)     ### flow velocity of Food, Antibiotic, Bacteria 
-D           <- c(2.2, 2.2, 2.2)     ### Diffusion coefficient of Food, Antibiotic, Bacteria respectively
+v           <- c(0.04, 0.04, 0.04)     ### flow velocity of Food, Antibiotic, Bacteria 
+D           <- c(0.2, 0.2, 0.2)     ### Diffusion coefficient of Food, Antibiotic, Bacteria respectively
 k           <- 0.1                   ### Monod constant
 F_in        <- 1/v[1]                ### Food concentration at the entrance of the gut
 A_in        <- 1/v[2]                ### Antibiotic concentration at the entrance of the gut
@@ -13,7 +13,7 @@ A_in        <- 1/v[2]                ### Antibiotic concentration at the entranc
 ##### Assigning the parameters values #####
 r           <- 0.42                  ### Growth rate of Bacteria 
 alpha       <- 6.13*10^8             ### Yield of Food to Bacteria and mutants respectively
-beta        <- 8.208*10^8            ### Consumption of antibiotic in killing Bacteria and mutants respectively
+beta        <- 8.208*10^6            ### Consumption of antibiotic in killing Bacteria and mutants respectively
 A_50        <- 0.1                   ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
 tmax        <- 700
 alpha1      <- (r*F_in)/(k+F_in)
@@ -42,7 +42,7 @@ yini <- c(F_ini, A_ini, B_ini)
 print(system.time(
   out  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","A","B"), parms = NULL , dimens = N)
 ))
-Food                    <- out[length(times),2:(N+1)]
+Food                    <- out[length(times),2:(N+1)]/F_in
 Bacte                   <- out[length(times),(2*(N+1)):(3*N+1)]
 Antibiotic              <- out[length(times),(N+2):(2*N+1)]
 outtime                 <- seq(from = tmax-60, to = tmax, by = 10)
