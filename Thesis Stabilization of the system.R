@@ -4,8 +4,8 @@ library(ReacTran)
 library(deSolve)
 L           <- 6
 N           <- 10031                       ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(0.5, 0.5, 0.5, 0.5)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
-D           <- c(0.2, 0.2, 2, 2)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
+v           <- c(0.5, 0.5, 0.5, 0.3)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
+D           <- c(0.2, 0.2, 0.2, 2)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
 k           <- 0.1                         ### Monod constant
 F_in        <- 1/v[1]                      ### Food concentration at the entrance of the gut
 A_in        <- 1/v[2]                      ### Antibiotic concentration at the entrance of the gut
@@ -41,24 +41,24 @@ yini <- c(F_ini, A_ini, B_ini)
 print(system.time(
   out1  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","A","B"), parms = NULL , dimens = N)
 ))
-M           <- 18
-Food        <- out1[, 2:(N+1)]
-Anti        <- out1[,(N+2):(2*N+1)]
-B           <- out1[,(2*(N+1)):(3*N+1)]
-par(mfrow=c(3,1))
-par(mar = c(4, 5, 2, 7) + 0.05 )
-for (i in (length(times)-M):length(times)){
-  if(i==length(times)-M){
-    plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-    plot(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-    plot(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
-  }
-  else{
-    lines(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-    lines(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-    lines(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
-  }
-}
+# M           <- 18
+# Food        <- out1[, 2:(N+1)]
+# Anti        <- out1[,(N+2):(2*N+1)]
+# B           <- out1[,(2*(N+1)):(3*N+1)]
+# par(mfrow=c(3,1))
+# par(mar = c(4, 5, 2, 7) + 0.05 )
+# for (i in (length(times)-M):length(times)){
+#   if(i==length(times)-M){
+#     plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
+#     plot(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
+#     plot(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
+#   }
+#   else{
+#     lines(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
+#     lines(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
+#     lines(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
+#   }
+# }
 
 
 # ####### Solving the full system ###########
