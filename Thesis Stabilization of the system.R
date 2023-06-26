@@ -4,8 +4,8 @@ library(ReacTran)
 library(deSolve)
 L           <- 6
 N           <- 10031                       ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(0.5, 0.5, .5, .5)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
-D           <- c(0.2, 0.2, 0.2, 0.2)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
+v           <- c(0.5, 0.5, 0.5, 0.5)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
+D           <- c(0.2, 0.2, 2, 2)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
 k           <- 0.1                         ### Monod constant
 F_in        <- 1/v[1]                      ### Food concentration at the entrance of the gut
 A_in        <- 1/v[2]                      ### Antibiotic concentration at the entrance of the gut
@@ -13,14 +13,14 @@ A_in        <- 1/v[2]                      ### Antibiotic concentration at the e
 ##### Assigning the parameters values #####
 r           <- 0.42                        ### Growth rate of Bacteria 
 alpha       <- 6.13*10^8                   ### Yield of Food to Bacteria and mutants respectively
-beta        <- 2*10^7                      ### Consumption of antibiotic in killing Bacteria and mutants respectively
+beta        <- 10^7                      ### Consumption of antibiotic in killing Bacteria and mutants respectively
 A_50        <- 0.1                         ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria 
 tmax        <- 700
 alpha1      <- (r*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50 + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)      ### Wash out limit
-delta_max   <- delta_wo - 0.02
-times       <- seq(0, tmax,len=100)                        ### discretization of times
+delta_max   <- delta_wo - 0.03 
+times       <- seq(0, tmax,len=200)                        ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid                                 ### Our discretization points
 F_ini       <- rep(1,N)*F_in*0.9
@@ -41,24 +41,24 @@ yini <- c(F_ini, A_ini, B_ini)
 print(system.time(
   out1  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","A","B"), parms = NULL , dimens = N)
 ))
-# M           <- 18
-# Food        <- out1[, 2:(N+1)]
-# Anti        <- out1[,(N+2):(2*N+1)]
-# B           <- out1[,(2*(N+1)):(3*N+1)]
-# par(mfrow=c(3,1))
-# par(mar = c(4, 5, 2, 7) + 0.05 )
-# for (i in (length(times)-M):length(times)){
-#   if(i==length(times)-M){
-#     plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-#     plot(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-#     plot(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
-#   }
-#   else{
-#     lines(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-#     lines(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-#     lines(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
-#   }
-# }
+M           <- 18
+Food        <- out1[, 2:(N+1)]
+Anti        <- out1[,(N+2):(2*N+1)]
+B           <- out1[,(2*(N+1)):(3*N+1)]
+par(mfrow=c(3,1))
+par(mar = c(4, 5, 2, 7) + 0.05 )
+for (i in (length(times)-M):length(times)){
+  if(i==length(times)-M){
+    plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
+    plot(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
+    plot(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
+  }
+  else{
+    lines(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
+    lines(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
+    lines(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
+  }
+}
 
 
 # ####### Solving the full system ###########
@@ -66,21 +66,21 @@ F_star      <- out1[length(times),2:(N+1)]
 B_star      <- out1[length(times),(2*(N+1)):(3*N+1)]
 A_star      <- out1[length(times),(N+2):(2*N+1)]
 r           <- c(0.42, 0.2)          ### Growth rate of Bacteria and Mutants respectively
-alpha       <- c(6.13*10^8, 6.13*10^8)     ### Yield of Food to Bacteria and mutants respectively
-beta        <- c(2*10^7, 2*10^5)    ### Consumption of antibiotic in killing Bacteria and mutants respectively
-A_50        <- c(0.1, 0.01)           ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
+alpha       <- c(6.13*10^8, 6.13*10^4)     ### Yield of Food to Bacteria and mutants respectively
+beta        <- c(10^7, 10^2)        ### Consumption of antibiotic in killing Bacteria and mutants respectively
+A_50        <- c(0.1, 0.1)            ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
 alpha1      <- (r[1]*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50[1] + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)        ### Possible wash out limit
-delta_max   <- c(delta_wo - 0.02, 0.000001)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
+delta_max   <- c(delta_wo - 0.03, 0.000000001)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
 tmax        <- 700
-times       <- seq(0, tmax, len = 100)
+times       <- seq(0, tmax, len = 200)
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid
 M0          <- 3.33*10^(-11)
 M_ini       <- rep(1,N)
 dx          <- L/N
-xm          <- 3
+xm          <- 1
 Mini        <- function (x){
   a <- abs(x-xm)
   if (a<=(dx/2)){
@@ -93,7 +93,7 @@ Mini        <- function (x){
 for(i in 1:N){
   M_ini[i] <- Mini(x[i])            ### Asigning the value of function "Mini" for initial condition of Mutant
 }
-yini  <- c(F_ini, B_ini, M_ini)     ### Initial condition to use in ode1D
+
 func  <- function(t, Y, parms) {
   Food      <- Y[1:N]
   A         <- Y[(N+1):(2*N)]
@@ -101,8 +101,8 @@ func  <- function(t, Y, parms) {
   M         <- Y[((3*N)+1):(4*N)]
   dFood     <- tran.1D(C = Food, D = D[1], flux.up = 1  , flux.down = NULL, v = v[1], dx = xgrid)$dC + -(r[1]/alpha[1])*B*Food/(k+Food) + -(r[2]/alpha[2])*M*Food/(k+Food)
   dA        <- tran.1D(C = A,    D = D[2], flux.up = 1  , flux.down = NULL, v = v[2], dx = xgrid)$dC + -(delta_max[1]/beta[1])*B*(A)/(A+A_50[1]) + -(delta_max[2]/beta[2])*M*(A)/(A+A_50[2])
-  dB        <- tran.1D(C = B,    D = D[3], flux.up = 0  , flux.down = NULL, v = v[3], dx = xgrid)$dC + r[1]*B*Food/(k+Food) + -delta_max[1]*B*(A)/(A+A_50[1])
-  dM        <- tran.1D(C = M,    D = D[4], flux.up = 0  , flux.down = NULL, v = v[4], dx = xgrid)$dC + r[2]*M*Food/(k+Food) + -delta_max[2]*M*(A)/(A+A_50[2])
+  dB        <- tran.1D(C = B,    D = D[3], flux.up = 0  , flux.down = NULL, v = v[3], dx = xgrid)$dC + r[1]*B*Food/(k+Food) - delta_max[1]*B*(A)/(A+A_50[1])
+  dM        <- tran.1D(C = M,    D = D[4], flux.up = 0  , flux.down = NULL, v = v[4], dx = xgrid)$dC + r[2]*M*Food/(k+Food) - delta_max[2]*M*(A)/(A+A_50[2])
   return(list(c(dFood, dA, dB, dM)))
 }
 yini <- c(F_ini, A_ini, B_ini, M_ini)
@@ -126,7 +126,7 @@ for (i in (length(times)-M):length(times)){
   else{
     lines(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
     lines(x, Antibiotic[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-    lines(x, Bacte[i,],    xlab = 'position x', ylab = 'Wild-type bacteria',type='l', col='blue', lwd = 1.5)
+     lines(x, Bacte[i,],    xlab = 'position x', ylab = 'Wild-type bacteria',type='l', col='blue', lwd = 1.5)
     lines(x, Mutant[i,], xlab = 'position x', ylab = 'Resistant Bacteria', type='l', col='purple', lwd = 1.5)
   }
 }
