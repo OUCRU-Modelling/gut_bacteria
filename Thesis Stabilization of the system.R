@@ -4,8 +4,8 @@ library(ReacTran)
 library(deSolve)
 L           <- 6
 N           <- 10031                       ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(0.5, 0.5, 0.5, 0.3)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
-D           <- c(0.2, 0.2, 0.2, 2)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
+v           <- c(0.5, 0.5, 1.1101, 1.1101)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
+D           <- c(0.2, 0.2, 2, 2)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
 k           <- 0.1                         ### Monod constant
 F_in        <- 1/v[1]                      ### Food concentration at the entrance of the gut
 A_in        <- 1/v[2]                      ### Antibiotic concentration at the entrance of the gut
@@ -19,7 +19,7 @@ tmax        <- 700
 alpha1      <- (r*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50 + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)      ### Wash out limit
-delta_max   <- delta_wo - 0.03 
+delta_max   <- delta_wo + 0.02 
 times       <- seq(0, tmax,len=200)                        ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid                                 ### Our discretization points
@@ -41,27 +41,27 @@ yini <- c(F_ini, A_ini, B_ini)
 print(system.time(
   out1  <- ode.1D(y = yini, func = Sol_system, times = times, nspec = 3, names = c("Food","A","B"), parms = NULL , dimens = N)
 ))
-# M           <- 18
-# Food        <- out1[, 2:(N+1)]
-# Anti        <- out1[,(N+2):(2*N+1)]
-# B           <- out1[,(2*(N+1)):(3*N+1)]
-# par(mfrow=c(3,1))
-# par(mar = c(4, 5, 2, 7) + 0.05 )
-# for (i in (length(times)-M):length(times)){
-#   if(i==length(times)-M){
-#     plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-#     plot(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-#     plot(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
-#   }
-#   else{
-#     lines(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-#     lines(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-#     lines(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
-#   }
-# }
+M           <- 18
+Food        <- out1[, 2:(N+1)]
+Anti        <- out1[,(N+2):(2*N+1)]
+B           <- out1[,(2*(N+1)):(3*N+1)]
+par(mfrow=c(3,1))
+par(mar = c(4, 5, 2, 7) + 0.05 )
+for (i in (length(times)-M):length(times)){
+  if(i==length(times)-M){
+    plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
+    plot(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
+    plot(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
+  }
+  else{
+    lines(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
+    lines(x, Anti[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
+    lines(x, B[i,], type='l', xlab = 'position x', ylab = 'bacteria', col='blue', lwd = 1.5)
+  }
+}
 
 
-# ####### Solving the full system ###########
+######### Solving the full system ###########
 F_star      <- out1[length(times),2:(N+1)]
 B_star      <- out1[length(times),(2*(N+1)):(3*N+1)]
 A_star      <- out1[length(times),(N+2):(2*N+1)]
@@ -72,7 +72,7 @@ A_50        <- c(0.1, 0.1)            ### Concentration of Antibiotic correspond
 alpha1      <- (r[1]*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50[1] + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)        ### Possible wash out limit
-delta_max   <- c(delta_wo - 0.03, 0.000000001)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
+delta_max   <- c(delta_wo + 0.02, 0.000000001)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
 tmax        <- 700
 times       <- seq(0, tmax, len = 200)
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
@@ -109,25 +109,26 @@ yini <- c(F_ini, A_ini, B_ini, M_ini)
 print(system.time(
   out  <- ode.1D(y = yini, func = func, times = times, nspec = 4, names = c("Food","A","B","M"), parms = NULL , dimens = N)
 ))
-M                       <- 18
-Food                    <- out[,2:(N+1)]
-Antibiotic              <- out[,(N+2):(2*N+1)]
-Bacte                   <- out[,(2*(N+1)):(3*N+1)]
-Mutant                  <- out[,(3*N+2):(4*N+1)]
+M                 <- 18
+Food              <- out[,2:(N+1)]
+Antibiotic        <- out[,(N+2):(2*N+1)]
+Bacte             <- out[,(2*(N+1)):(3*N+1)]
+Mutant            <- out[,(3*N+2):(4*N+1)]
 par(mfrow=c(2,2))
 par(mar = c(4, 5, 2, 2.5) + 0.05 )
-for (i in (length(times)-M):length(times)){
-  if(i==length(times)-M){
-    plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-    plot(x, Antibiotic[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-    plot(x, Bacte[i,], type='l', xlab = 'position x', ylab = 'Wild-type bacteria', col='blue', lwd = 1.5)
-    plot(x, Mutant[i,], xlab = 'position x', ylab = 'Resistant Bacteria', type='l', col='purple', lwd = 1.5)
-  }
-  else{
-    lines(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-    lines(x, Antibiotic[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-     lines(x, Bacte[i,],    xlab = 'position x', ylab = 'Wild-type bacteria',type='l', col='blue', lwd = 1.5)
-    lines(x, Mutant[i,], xlab = 'position x', ylab = 'Resistant Bacteria', type='l', col='purple', lwd = 1.5)
-  }
+i                 <- length(times)-M
+plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
+for (j in (length(times)-M+1):length(times)){
+  lines(x, Food[j,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)}
+plot(x, Antibiotic[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
+for (j in (length(times)-M+1):length(times)){
+  lines(x, Antibiotic[j,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)}
+plot(x, Bacte[i,], type='l', xlab = 'position x', ylab = 'Wild-type bacteria', col='blue', lwd = 1.5)
+for (j in (length(times)-M+1):length(times)){
+lines(x, Bacte[j,],    xlab = 'position x', ylab = 'Wild-type bacteria',type='l', col='blue', lwd = 1.5)}
+plot(x, Mutant[i,], xlab = 'position x', ylab = 'Resistant Bacteria', type='l', col='purple', lwd = 1.5)
+for (j in (length(times)-M+1):length(times)){
+    lines(x, Mutant[j,], xlab = 'position x', ylab = 'Resistant Bacteria', type='l', col='purple', lwd = 1.5)
 }
-
+print(delta_max)
+print(delta_wo)
