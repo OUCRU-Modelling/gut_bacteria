@@ -3,7 +3,7 @@ library(bvpSolve)
 library(ReacTran)
 library(deSolve)
 L           <- 6
-N           <- 12031                       ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
+N           <- 10031                       ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
 v           <- c(0.45, 0.45, 0.45, 0.35)         ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
 D           <- c(0.2, 0.2, 1.5, 1.5)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
 k           <- 0.1                         ### Monod constant
@@ -65,14 +65,14 @@ for (i in (length(times)-M):length(times)){
 F_star      <- out1[length(times),2:(N+1)]
 B_star      <- out1[length(times),(2*(N+1)):(3*N+1)]
 A_star      <- out1[length(times),(N+2):(2*N+1)]
-r           <- c(0.42, 0.235)          ### Growth rate of Bacteria and Mutants respectively
+r           <- c(0.42, 0.335)          ### Growth rate of Bacteria and Mutants respectively
 alpha       <- c(6.13*10^8, 6.13*10^8)     ### Yield of Food to Bacteria and mutants respectively
-beta        <- c(10^8, 10)        ### Consumption of antibiotic in killing Bacteria and mutants respectively
+beta        <- c(10^8, 10^2)        ### Consumption of antibiotic in killing Bacteria and mutants respectively
 A_50        <- c(0.15, 0.15)            ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
 alpha1      <- (r[1]*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50[1] + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)        ### Possible wash out limit
-delta_max   <- c(delta_wo + del, 0.00000000)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
+delta_max   <- c(delta_wo + del, 0.000000001)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
 tmax2       <- 9900
 times2      <- seq(0, tmax2, len = 300)
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
