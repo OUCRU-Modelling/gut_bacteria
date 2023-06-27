@@ -3,24 +3,24 @@ library(bvpSolve)
 library(ReacTran)
 library(deSolve)
 L           <- 6
-N           <- 10031                       ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(0.5, 0.5, 1.1101, 1.1101)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
-D           <- c(0.2, 0.2, 2, 2)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
+N           <- 12031                       ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
+v           <- c(0.45, 0.45, 0.45, 0.35)         ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
+D           <- c(0.2, 0.2, 1.5, 1.5)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
 k           <- 0.1                         ### Monod constant
 F_in        <- 1/v[1]                      ### Food concentration at the entrance of the gut
 A_in        <- 1/v[2]                      ### Antibiotic concentration at the entrance of the gut
-
+del         <- -0.158
 ##### Assigning the parameters values #####
 r           <- 0.42                        ### Growth rate of Bacteria 
 alpha       <- 6.13*10^8                   ### Yield of Food to Bacteria and mutants respectively
-beta        <- 10^7                      ### Consumption of antibiotic in killing Bacteria and mutants respectively
+beta        <- 10^8                        ### Consumption of antibiotic in killing Bacteria and mutants respectively
 A_50        <- 0.1                         ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria 
-tmax        <- 700
+tmax1       <- 900
 alpha1      <- (r*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50 + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)      ### Wash out limit
-delta_max   <- delta_wo - 0.02 
-times       <- seq(0, tmax,len=200)                        ### discretization of times
+delta_max   <- delta_wo + del 
+times       <- seq(0, tmax1,len=200)                        ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid                                 ### Our discretization points
 F_ini       <- rep(1,N)*F_in*0.9
@@ -65,16 +65,16 @@ for (i in (length(times)-M):length(times)){
 F_star      <- out1[length(times),2:(N+1)]
 B_star      <- out1[length(times),(2*(N+1)):(3*N+1)]
 A_star      <- out1[length(times),(N+2):(2*N+1)]
-r           <- c(0.42, 0.36)          ### Growth rate of Bacteria and Mutants respectively
-alpha       <- c(6.13*10^8, 6.13*10^4)     ### Yield of Food to Bacteria and mutants respectively
-beta        <- c(10^7, 10^2)        ### Consumption of antibiotic in killing Bacteria and mutants respectively
-A_50        <- c(0.1, 0.1)            ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
+r           <- c(0.42, 0.235)          ### Growth rate of Bacteria and Mutants respectively
+alpha       <- c(6.13*10^8, 6.13*10^8)     ### Yield of Food to Bacteria and mutants respectively
+beta        <- c(10^8, 10)        ### Consumption of antibiotic in killing Bacteria and mutants respectively
+A_50        <- c(0.15, 0.15)            ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively
 alpha1      <- (r[1]*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50[1] + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)        ### Possible wash out limit
-delta_max   <- c(delta_wo - 0.02, 0.000000001)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
-tmax        <- 700
-times       <- seq(0, tmax, len = 200)
+delta_max   <- c(delta_wo + del, 0.00000000)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
+tmax2       <- 9900
+times2      <- seq(0, tmax2, len = 300)
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid
 M0          <- 3.33*10^(-11)
@@ -107,7 +107,7 @@ func  <- function(t, Y, parms) {
 }
 yini <- c(F_ini, A_ini, B_ini, M_ini)
 print(system.time(
-  out  <- ode.1D(y = yini, func = func, times = times, nspec = 4, names = c("Food","A","B","M"), parms = NULL , dimens = N)
+  out  <- ode.1D(y = yini, func = func, times = times2, nspec = 4, names = c("Food","A","B","M"), parms = NULL , dimens = N)
 ))
 M                 <- 18
 Food              <- out[,2:(N+1)]
@@ -116,21 +116,21 @@ Bacte             <- out[,(2*(N+1)):(3*N+1)]
 Mutant            <- out[,(3*N+2):(4*N+1)]
 par(mfrow=c(2,2))
 par(mar = c(4, 5, 2, 2.5) + 0.05 )
-i                 <- length(times)-M
+i                 <- length(times2)-M
 plot(x, Food[i,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)
-for (j in (length(times)-M+1):length(times)){
+for (j in (length(times2)-M+1):length(times2)){
   lines(x, Food[j,], xlab = 'position x', ylab = 'Food', type='l', col='red', lwd = 1.5)}
 
 plot(x, Antibiotic[i,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)
-for (j in (length(times)-M+1):length(times)){
+for (j in (length(times2)-M+1):length(times2)){
   lines(x, Antibiotic[j,], xlab = 'position x', ylab = 'drug', type='l', col='orange', lwd = 1.5)}
 
 plot(x, Bacte[i,], type='l', xlab = 'position x', ylab = 'Wild-type bacteria', col='blue', lwd = 1.5)
-for (j in (length(times)-M+1):length(times)){
-  lines(x, Bacte[j,],    xlab = 'position x', ylab = 'Wild-type bacteria',type='l', col='blue', lwd = 1.5)}
+for (j in (length(times2)-M+1):length(times2)){
+  lines(x, Bacte[j,], xlab = 'position x', ylab = 'Wild-type bacteria',type='l', col='blue', lwd = 1.5)}
 
-plot(x, Mutant[i,], xlab = 'position x', ylab = 'Resistant Bacteria', type='l', col='purple', lwd = 1.5)
-for (j in (length(times)-M+1):length(times)){
+plot(x, Mutant[i,], xlab = 'position x', ylab = 'Resistant Bacteria', type='l', col='purple', lwd = 1.5)#, ylim=c(,5.9*10^-74))
+for (j in (length(times2)-M+1):length(times2)){
   lines(x, Mutant[j,], xlab = 'position x', ylab = 'Resistant Bacteria', type='l', col='purple', lwd = 1.5)}
 
 print(delta_max)
