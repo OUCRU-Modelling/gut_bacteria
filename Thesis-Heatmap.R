@@ -10,20 +10,21 @@ library(fields)
 
 L           <- 6
 N           <- 10031                 ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(seq(0.05, 0.1, len=30), seq(0.105, 0.2, len=30), seq(0.201, 0.5, len = 25), seq(0.505, 1, len = 25), seq(1.1, 2.6, len = 13))     ### 
+### Generating the vector of velocitys and Diffusion coefficients ###
+v           <- c(seq(0.05, 0.1, len=30), seq(0.105, 0.2, len=30), seq(0.201, 0.5, len = 25), seq(0.505, 1, len = 25), seq(1.1, 2.6, len = 13))     
 D           <- c(seq(0.01, 0.10, len=30), seq(0.11, 0.50, len=25), seq(0.501, 1, len = 20), seq(1.01, 5, len = 25), seq(5.01, 10, len = 10), seq(11, 50, len = 20))        
 
-k           <- 0.1                   ### Monod constant
-### Antibiotic concentration at the entrance of the gut
-numCores    <- detectCores() - 1
+                 
+numCores    <- detectCores() - 1     ### Numbers of cores to be using parallel
 ##### Assigning the parameters values #####
+k           <- 0.1                   ### Monod constant
 r           <- 0.42                  ### Growth rate of Bacteria 
-alpha       <- 6.13*10^8             ### Yield of Food to Bacteria and mutants respectively
+alpha       <- 6.13*10^8             ### Yield of Food to Bacteria 
 beta        <- 6.13*10^7
 A_50        <- 0.1
 delta_max   <- 0.203
 tmax        <- 700
-ite         <- vector('list', length(D)*length(v))
+ite         <- vector('list', length(D)*length(v)) ### Creating the list index to be using in function in parallel
 l <- 1
 for(i in 1 : length(D)){
   for(j in 1 : length(v)){
@@ -31,14 +32,15 @@ for(i in 1 : length(D)){
     l        <- l + 1
   }
 }
-index <- seq(1, length(D)*length(v), by = 1)
-Heat_map <- function(n){
+index <- seq(1, length(D)*length(v), by = 1)       ### Index in parallel computation
+
+Heat_map <- function(n){                           ### Main function to be compiled in parallel computation
   a           <- array(unlist(ite[n]), dim = c(1,  2))
   i           <- a[1]
   j           <- a[2]
   F_in        <- 1/v[j]                
   A_in        <- 1/v[j] 
-  times       <- seq(0, tmax,len = 160)                           ### discretization of times
+  times       <- seq(0, tmax,len = 160)                         ### discretization of times
   xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N)    ### generating the gird for our solution
   x           <- xgrid$x.mid                                    ### We should cho x.mid rather than x.int 
   F_ini       <- rep(1,N)*F_in*0.9                              ### Initial condtitions
@@ -68,7 +70,8 @@ Heat_map <- function(n){
 system.time({
   results <- mclapply(index, Heat_map, mc.cores = numCores)
 })
-washout_line <- function(j){
+
+washout_line <- function(j){          ### Washout limit magenta line
   F_in        <- 1/v[j]                
   A_in        <- 1/v[j] 
   alpha1      <- (r*F_in)/(k+F_in)
@@ -84,6 +87,8 @@ washout_line_D          <- array(unlist(result2), dim = c(length(v), 1))
 conc_profile            <- array(unlist(resul), dim = c (3, length(D)*length(v)))
 conc_profile_Food       <- matrix(conc_profile[1, ], ncol = length(D), nrow = length(v))
 conc_profile_Antibiotic <- matrix(conc_profile[2, ], ncol = length(D), nrow = length(v))
+
+### Drawing the Heatmap ###
 x <- v
 y <- D
 image.plot(conc_profile_Food, x=log10(x), y=log10(y), xlab = 'velocity v', ylab = 'Diffusion coefficient', col = NULL, axes=FALSE)
