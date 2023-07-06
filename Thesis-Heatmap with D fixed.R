@@ -78,44 +78,56 @@ A_in        <- 1/v
 alpha1      <- (r*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50 + A_in)
 
-washout_line_delta_2     <- (alpha1 - (v^2)/(3.8*D))/(alpha2)
+washout_line_delta_2     <- (alpha1 - (v^2)/(3.5*D))/(alpha2)
 washout_line_delta_1     <- r*rep(1, length(v)) - (v*(1 + 0.1*v))/L
 conc_profile             <- array(unlist(results), dim = c (3, length(delta_max)*length(v)))
 conc_profile_Food        <- matrix(conc_profile[1, ], ncol = length(delta_max), nrow = length(v))
 conc_profile_Antibiotic  <- matrix(conc_profile[2, ], ncol = length(delta_max), nrow = length(v))
 conc_profile_Bacteria    <- matrix(conc_profile[3, ], ncol = length(delta_max), nrow = length(v))
-x <- v
-y <- delta_max
-#par(mfrow=c(3,1))
-#par(mar = c(6, 6, 2, 5) + 0.05 )
-
-#### Heatmap Food ####
-image.plot(conc_profile_Food, x=log(x, 20), y=log(y, 20), ylim = log(c(0.01, 0.4), 20),
-           xlab = 'velocity v', ylab = 'delta max',
-           main = 'Spatial dependence regarding Food
+x  <- v
+y  <- delta_max
+n1 <- length(washout_line_delta_1[washout_line_delta_1 > 0])
+n2 <- length(washout_line_delta_2[washout_line_delta_2 > 0])
+Heatmap_i <- function(i){
+  par(mar = c(6, 5, 6, 6.5) + 0.05 )  
+  if(i==1){
+    #### Heatmap Food ####
+    image.plot(conc_profile_Food, x=log(x, 20), y=log(y, 20),# ylim = log(c(0.01, 0.4), 20),
+               xlab = 'velocity v', ylab = 'delta max',
+               main = 'Spatial dependence regarding Food
            average, D = 0.4', col = NULL, axes = TRUE)
-contour(z = conc_profile_Food, x=log(x, 20), y=log(y, 20),  add=TRUE)
-lines(log(x, 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
-      , col = 'magenta2', lwd = 3)
-lines(log(x ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20), col = 'green2', lwd = 3)
-
-
-#### Heatmap drug ####
-image.plot(conc_profile_Antibiotic, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
-           , ylab = 'delta max',
-           main = 'Spatial dependence regarding Antibiotic
+    contour(z = conc_profile_Food, x=log(x, 20), y=log(y,20), add = TRUE) 
+    lines(log(x[1:n2], 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
+          , col = 'magenta2', lwd = 3)
+    lines(log(x[1:n1] ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20),
+          col = 'green', lwd = 3)
+  }
+  if(i==2){
+    #### Heatmap drug ####
+    image.plot(conc_profile_Antibiotic, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
+               , ylab = 'delta max',
+               main = 'Spatial dependence regarding Antibiotic
            average, D = 0.4', col = NULL, axes=FALSE)
-contour(z = conc_profile_Antibiotic,x=log10(x), y=log10(y),  add=TRUE)
-lines(log(x, 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
-      , col = 'magenta2', lwd = 3)
-lines(log(x ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20), col = 'green2', lwd = 3)
-
-### Heatmap Bacteria ####
-image.plot(conc_profile_Bacteria, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
-           , ylab = 'Diffusion coefficient',
-           main = 'Spatial dependence regarding Bacteria
-           average, delta max = 0.3', col = NULL, axes=FALSE)
-contour(z = conc_profile_Food, x=log(x, 20), y=log(y, 20),  add=TRUE)
-lines(log(x, 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
-      , col = 'magenta2', lwd = 3)
-lines(log(x ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20), col = 'green2', lwd = 3)
+    contour(z = conc_profile_Antibiotic,x=log10(x), y=log10(y),  add=TRUE)
+    lines(log(x[1:n2], 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
+          , col = 'magenta2', lwd = 3)
+    lines(log(x[1:n1] ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20), 
+          col = 'green', lwd = 3)
+  }
+  if(i==3){
+    ### Heatmap Bacteria ####
+    image.plot(conc_profile_Bacteria, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
+               , ylab = 'delta max',
+               main = 'Spatial dependence regarding Bacteria
+           average, D = 0.4', col = NULL, axes=FALSE)
+    contour(z = conc_profile_Food, x=log(x, 20), y=log(y, 20),  add=TRUE)
+    lines(log(x[1:n2], 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
+          , col = 'magenta2', lwd = 3)
+    lines(log(x[1:n1] ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20),
+          col = 'green', lwd = 3)
+  }
+  if(i!=1 && i!=2 && i!=3){
+    print('index only belongs to (1, 2, 3')
+  }
+}
+Heatmap_i(1)
