@@ -71,41 +71,48 @@ system.time({
   results <- mclapply(index, Heat_map, mc.cores = numCores)
 })
 
-F_in        <- 1/v                
-A_in        <- 1/v
-alpha1      <- (r*F_in)/(k+F_in)
-alpha2      <- (A_in)/(A_50 + A_in)
+F_in           <- 1/v                
+A_in           <- 1/v
+alpha1         <- (r*F_in)/(k+F_in)
+alpha2         <- (A_in)/(A_50 + A_in)
+F_in           <- 1/v                
+A_in           <- 1/v
+alpha1         <- (r*F_in)/(k+F_in)
+alpha2         <- (A_in)/(A_50 + A_in)
+Washout_line_D <- (v^20)/((alpha1 - delta_max*alpha2)*(4))
 
-washout_line_delta      <- (alpha1 - (v^2)/(3.8*0.4))/(alpha2)
-threshold_line_delta    <- alpha1/alpha2
-conc_profile            <- array(unlist(results), dim = c (3, length(delta_max)*length(v)))
-conc_profile_Food       <- matrix(conc_profile[1, ], ncol = length(delta_max), nrow = length(v))
-conc_profile_Antibiotic <- matrix(conc_profile[2, ], ncol = length(delta_max), nrow = length(v))
-conc_profile_Bacteria   <- matrix(conc_profile[3, ], ncol = length(delta_max), nrow = length(v))
+conc_profile            <- array(unlist(results), dim = c (3, length(D)*length(v)))
+conc_profile_Food       <- matrix(conc_profile[1, ], ncol = length(D), nrow = length(v))
+conc_profile_Antibiotic <- matrix(conc_profile[2, ], ncol = length(D), nrow = length(v))
+conc_profile_Bacteria   <- matrix(conc_profile[3, ], ncol = length(D), nrow = length(v))
 x <- v
-y <- delta_max
-#par(mfrow=c(3,1))
-#par(mar = c(6, 6, 2, 5) + 0.05 )
+y <- D
 
-image.plot(conc_profile_Food, x=log(x, 20), y=log(y, 20), ylim = log(c(0.01, 0.4), 20),
-           xlab = 'velocity v', ylab = 'delta max',
+#### Heatmap Food ####
+image.plot(conc_profile_Food, x=log(x, 20), y=log(y, 20), ylim = log(c(0.01, 50), 20),
+           xlab = 'velocity v', ylab = 'Diffusion Coefficient',
            main = 'Spatial dependence regarding Food
-           average, D = 0.4', col = NULL, axes=FALSE)
-contour(z = conc_profile_Food, x=log(x, 20), y=log(y, 20),  add=TRUE)
-lines(log(x[1 : 103], 20), log(washout_line_delta[1 : 103], 20), type = 'l'
+           average', col = NULL, axes=FALSE)
+contour(z = conc_profile_Food, x=log(x, 20), y=log(y, 20), add=TRUE)
+lines(log(x, 20), log(Washout_line_D, 20), type = 'l'
       , col = 'magenta2', lwd = 3)
-lines(log(x ,20), log(threshold_line_delta, 20), col = 'green', lwd = 6 )
-lines(rep(1, length(delta_max))*log(1.25743, 20), log(y, 20), type = 'l', col = 'cyan', lwd = 3)
+lines(rep(1, length(D))*log(((-0.1-sqrt(1-4*0.1*(r-delta_max)))/2), 20),
+      log(y, 20), type = 'l',
+      col = 'cyan2', lwd = 3)
 
-image.plot(conc_profile_Antibiotic, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
-           , ylab = 'delta max',
+#### Heatmap drug ####
+image.plot(conc_profile_Antibiotic, x=log(x, 20), y=log(y, 20), ylim = log(c(0.01, 50), 20),
+           xlab = 'velocity v', ylab = 'Diffusion Coefficient',
            main = 'Spatial dependence regarding Antibiotic
-           average, D = 0.4', col = NULL, axes=FALSE)
+           average', col = NULL, axes=FALSE)
 contour(z = conc_profile_Antibiotic,x=log10(x), y=log10(y),  add=TRUE)
 lines(log(x, 20), log(washout_line_D, 20), ylim = c(0.01, 50), type = 'l'
       , col = 'magenta2', lwd = 3)
-lines(rep(1, length(D))*log10(1.25743), log10(y), type = 'l', col = 'cyan', lwd = 3)
+lines(rep(1, length(D))*log(((-0.1-sqrt(1-4*0.1*(r-delta_max)))/2), 20),
+      log(y, 20), type = 'l',
+      col = 'cyan2', lwd = 3)
 
+#### Heatmap Bacteria ####
 # image.plot(conc_profile_Bacteria, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
 #            , ylab = 'Diffusion coefficient',
 #            main = 'Spatial dependence regarding Bacteria
@@ -113,4 +120,6 @@ lines(rep(1, length(D))*log10(1.25743), log10(y), type = 'l', col = 'cyan', lwd 
 # contour(z = conc_profile_Food, x=log(x, 20), y=log(y, 20),  add=TRUE)
 # lines(log(x, 20), log(washout_line_D, 20), ylim = c(0.01, 50), type = 'l'
 #       , col = 'magenta2', lwd = 3)
-# lines(rep(1, length(D))*log10(1.25743), log10(y), type = 'l', col = 'cyan', lwd = 3)
+# lines(rep(1, length(D))*log(((-0.1-sqrt(1-4*0.1*(r-delta_max)))/2), 20),
+#log(y, 20), type = 'l',
+#col = 'cyan2', lwd = 3)
