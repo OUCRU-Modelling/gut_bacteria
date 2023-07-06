@@ -19,7 +19,7 @@ tmax        <- 700
 alpha1      <- (r*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50 + A_in)
 delta_wo1   <- (alpha1 - (v[3]^2)/(4*D[3]))*(1/alpha2)        ### Possible wash out limit
-delta_max   <- delta_wo1 + .2
+delta_max   <- 0.203
 delta_wo2   <- L/(alpha1- delta_max*alpha2)
 times       <- seq(0, tmax,len=200)                           ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N)    ### generating the gird for our solution
