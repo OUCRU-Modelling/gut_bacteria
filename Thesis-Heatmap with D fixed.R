@@ -14,9 +14,10 @@ N           <- 10031                 ### Spatial discretization points, must be 
 v           <- c(seq(0.05, 0.1, len=30), seq(0.105, 0.2, len=30), 
                  seq(0.201, 0.5, len = 25), seq(0.505, 1, len = 25),
                  seq(1.1, 2.6, len = 13))     
-
+v_B         <- c(seq(0.05, 0.1, len=10), seq(0.105, 0.2, len=10), seq(0.201, 0.5, len = 5),
+                 seq(0.505, 1, len = 5), seq(1.1, 2.6, len = 3)) 
 D           <- 0.4
-
+delta_max   <- seq(0.01, 0.4, len = 100)
 numCores    <- detectCores() - 1     ### Numbers of cores to be using parallel
 ##### Assigning the parameters values #####
 k           <- 0.1                   ### Monod constant
@@ -24,7 +25,6 @@ r           <- 0.42                  ### Growth rate of Bacteria
 alpha       <- 6.13*10^8             ### Yield of Food to Bacteria 
 beta        <- 6.13*10^7
 A_50        <- 0.1
-delta_max   <- seq(0.01, 0.4, len = 100)
 tmax        <- 700
 ite         <- vector('list', length(delta_max)*length(v)) ### Creating the list index to be using in function in parallel
 l <- 1
@@ -53,9 +53,9 @@ Heat_map <- function(n){                           ### Main function to be compi
     Food      <- Y[1:N]
     A         <- Y[(N+1):(2*N)]
     B         <- Y[((2*N)+1):(3*N)]
-    dFood     <- tran.1D(C = Food, D = D, flux.up = 1, flux.down = NULL, v = v[j], dx = xgrid)$dC + -(r/alpha)*B*Food/(k+Food)       
-    dA        <- tran.1D(C = A   , D = D, flux.up = 1, flux.down = NULL, v = v[j], dx = xgrid)$dC + -(delta_max[i]/beta)*B*(A)/(A+A_50) 
-    dB        <- tran.1D(C = B   , D = D, flux.up = 0, flux.down = NULL, v = v[j], dx = xgrid)$dC + r*B*Food/(k+Food) + -delta_max[i]*B*(A)/(A+A_50)                                          ### tran1D to describe divection diffusion equation
+    dFood     <- tran.1D(C = Food, D = D,   flux.up = 1, flux.down = NULL, v = v[j],   dx = xgrid)$dC + -(r/alpha)*B*Food/(k+Food)       
+    dA        <- tran.1D(C = A   , D = D,   flux.up = 1, flux.down = NULL, v = v[j],   dx = xgrid)$dC + -(delta_max[i]/beta)*B*(A)/(A+A_50) 
+    dB        <- tran.1D(C = B   , D = D_B, flux.up = 0, flux.down = NULL, v = v_B[j], dx = xgrid)$dC + r*B*Food/(k+Food) + -delta_max[i]*B*(A)/(A+A_50)                                          ### tran1D to describe divection diffusion equation
     
     return(list(c(dFood, dA, dB)))
   }
@@ -78,56 +78,47 @@ A_in        <- 1/v
 alpha1      <- (r*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50 + A_in)
 
-washout_line_delta_2     <- (alpha1 - (v^2)/(3.5*D))/(alpha2)
-washout_line_delta_1     <- r*rep(1, length(v)) - (v*(1 + 0.1*v))/L
+washout_line_delta       <- (alpha1 - (v_B^2)/(3.5*D))/(alpha2)
+washout_line_v           <- L*(alpha1 - delta_max*alpha2)
 conc_profile             <- array(unlist(results), dim = c (3, length(delta_max)*length(v)))
 conc_profile_Food        <- matrix(conc_profile[1, ], ncol = length(delta_max), nrow = length(v))
 conc_profile_Antibiotic  <- matrix(conc_profile[2, ], ncol = length(delta_max), nrow = length(v))
 conc_profile_Bacteria    <- matrix(conc_profile[3, ], ncol = length(delta_max), nrow = length(v))
 x  <- v
 y  <- delta_max
-n1 <- length(washout_line_delta_1[washout_line_delta_1 > 0])
-n2 <- length(washout_line_delta_2[washout_line_delta_2 > 0])
-Heatmap_i <- function(i){
-  par(mar = c(6, 5, 6, 6.5) + 0.05 )  
-  if(i==1){
-    #### Heatmap Food ####
-    image.plot(conc_profile_Food, x=log(x, 20), y=log(y, 20),# ylim = log(c(0.01, 0.4), 20),
-               xlab = 'velocity v', ylab = 'delta max',
-               main = 'Spatial dependence regarding Food
+n1 <- length(washout_line_delta[washout_line_delta > 0])
+n2 <- length(washout_line_v[washout_line_v > 0])
+
+par(mar = c(6, 5, 6, 6.5) + 0.05 )  
+
+#### Heatmap Food ####
+image.plot(conc_profile_Food, x=log(x, 20), y=log(y, 20),# ylim = log(c(0.01, 0.4), 20),
+           xlab = 'velocity v', ylab = 'delta max',
+           main = 'Spatial dependence regarding Food
            average, D = 0.4', col = NULL, axes = TRUE)
-    contour(z = conc_profile_Food, x=log(x, 20), y=log(y,20), add = TRUE) 
-    lines(log(x[1:n2], 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
-          , col = 'magenta2', lwd = 3)
-    lines(log(x[1:n1] ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20),
-          col = 'green', lwd = 3)
-  }
-  if(i==2){
-    #### Heatmap drug ####
-    image.plot(conc_profile_Antibiotic, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
-               , ylab = 'delta max',
-               main = 'Spatial dependence regarding Antibiotic
+contour(z = conc_profile_Food, x=log(x, 20), y=log(y,20), add = TRUE) 
+lines(log(x[1:n2], 20), log(washout_line_delta[washout_line_delta > 0], 20), type = 'l'
+      , col = 'magenta', lwd = 3)
+lines(log(x[1:n1] ,20), log(washout_line_v[washout_line_v > 0], 20),
+      col = 'cyan', lwd = 3)
+#### Heatmap drug ####
+image.plot(conc_profile_Antibiotic, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
+           , ylab = 'delta max',
+           main = 'Spatial dependence regarding Antibiotic
            average, D = 0.4', col = NULL, axes=FALSE)
-    contour(z = conc_profile_Antibiotic,x=log10(x), y=log10(y),  add=TRUE)
-    lines(log(x[1:n2], 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
-          , col = 'magenta2', lwd = 3)
-    lines(log(x[1:n1] ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20), 
-          col = 'green', lwd = 3)
-  }
-  if(i==3){
-    ### Heatmap Bacteria ####
-    image.plot(conc_profile_Bacteria, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
-               , ylab = 'delta max',
-               main = 'Spatial dependence regarding Bacteria
+contour(z = conc_profile_Antibiotic,x=log10(x), y=log10(y),  add=TRUE)
+lines(log(x[1:n2], 20), log(washout_line_delta[washout_line_delta > 0], 20), type = 'l'
+      , col = 'magenta', lwd = 3)
+lines(log(x[1:n1] ,20), log(washout_line_v[washout_line_v > 0], 20),
+      col = 'cyan', lwd = 3)
+
+### Heatmap Bacteria ####
+image.plot(conc_profile_Bacteria, x=log(x, 20), y=log(y, 20), xlab = 'velocity v'
+           , ylab = 'delta max',
+           main = 'Spatial dependence regarding Bacteria
            average, D = 0.4', col = NULL, axes=FALSE)
-    contour(z = conc_profile_Food, x=log(x, 20), y=log(y, 20),  add=TRUE)
-    lines(log(x[1:n2], 20), log(washout_line_delta_2[washout_line_delta_2 > 0], 20), type = 'l'
-          , col = 'magenta2', lwd = 3)
-    lines(log(x[1:n1] ,20), log(washout_line_delta_1[washout_line_delta_1 > 0], 20),
-          col = 'green', lwd = 3)
-  }
-  if(i!=1 && i!=2 && i!=3){
-    print('index only belongs to (1, 2, 3')
-  }
-}
-Heatmap_i(1)
+contour(z = conc_profile_Food, x=log(x, 20), y=log(y, 20),  add=TRUE)
+lines(log(x[1:n2], 20), log(washout_line_delta[washout_line_delta > 0], 20), type = 'l'
+      , col = 'magenta', lwd = 3)
+lines(log(x[1:n1] ,20), log(washout_line_v[washout_line_v > 0], 20),
+      col = 'cyan', lwd = 3)

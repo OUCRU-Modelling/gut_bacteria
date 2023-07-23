@@ -43,7 +43,7 @@ Sol <-  bvpcol(x = s, func = func, bound = bound,
 Sol[,2] <- Sol[,2]
 Sol[,1] <- Sol[,1]*D/v
 ### I have to solve the solution using bvpSolve in order to draw our solution in Vector field
-
+# 
 
 ########## Plot phase plane ####
 
