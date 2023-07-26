@@ -4,8 +4,8 @@ library(ReacTran)
 library(deSolve)
 L           <- 6
 N           <- 10031                       ### Spatial discretization points, must be odd in order to obtain the exact stationary solution
-v           <- c(0.7849518, 0.7849518, 0.6856183, 1.505119)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
-D           <- c(0.2437193, 0.2437193, 0.86, 5.470337)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
+v           <- c(1.012057, 1.012057, 0.8594231, 0.753263)       ### flow velocity of Food, Antibiotic, Bacteria and Mutant respectively
+D           <- c(0.3, 0.3, 0.4, 0.4)           ### Diffusion coefficient of Food, Antibiotic, Bacteria and Mutant respectively
 k           <- 0.1                         ### Monod constant
 F_in        <- 1/v[1]                      ### Food concentration at the entrance of the gut
 A_in        <- 1/v[2]                      ### Antibiotic concentration at the entrance of the gut
@@ -18,7 +18,7 @@ A_50        <- 0.09                        ### Concentration of Antibiotic corre
 alpha1      <- (r[1]*F_in)/(k+F_in)
 alpha2      <- (A_in)/(A_50[1] + A_in)
 delta_wo    <- (alpha1 - (v[3]^2)/(3.2*D[3]))*(1/alpha2)
-delta_max1  <- 0.17
+delta_max1  <- 0.1319886
 tmax        <- 700
 times       <- seq(0, tmax,len=200)                        ### discretization of times
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
@@ -83,13 +83,13 @@ alpha       <- c(6.13*10^8, 6.13*10^8)  ### Yield of Food to Bacteria and mutant
 beta        <- c(6.13*10^7, 6.13*10^1)      ### Consumption of antibiotic in killing Bacteria and mutants respectively
 A_50        <- c(0.09, 0.1)             ### Concentration of Antibiotic corresponding to a half of elimination efficiency on Bacteria and Mutant respectively     
 ### Possible wash out limit
-delta_max   <- c(delta_max1, 0.00001)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
+delta_max   <- c(delta_max1, 0.04074845)  ### Maximum elimination rates of drug killing bacteria and resistant respectively
 xgrid       <- setup.grid.1D (x.up = 0, x.down = L, N = N) ### generating the gird for our solution
 x           <- xgrid$x.mid
 M0          <- 3.33*10^(-11)  
 M_ini       <- rep(1,N)
 dx          <- L/N
-xm          <- 3
+xm          <- 1
 Mini        <- function (x){
   a <- abs(x-xm)
   if (a<=(dx/2)){
@@ -127,7 +127,7 @@ Sum_F <- sum(abs(Food))
 Sum_A <- sum(abs(Antibiotic))
 Sum_B <- sum(abs(Bacte))
 Sum_M <- sum(abs(Mutant))
-a <- c(Sum_F, Sum_A, Sum_B, Sum_M)
+print(a = c(Sum_F, Sum_A, Sum_B, Sum_M))
 ###### drawing the full profile ########  
 par(mar = c(6, 7, 5, 7) + 0.05)
 plot(x, Food, xlab='position', ylab='food', col='red', type='l', lwd =2)
